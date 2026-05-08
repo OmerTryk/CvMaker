@@ -140,20 +140,20 @@ export function HomePage() {
                 Sprint Durumu
               </p>
               <h2 className="mt-3 font-display text-3xl font-light leading-tight md:text-4xl">
-                Sprint 4 · PDF Export
+                Sprint 6 · Deploy
                 <span className="ml-3 font-sans text-base text-accent">
                   ● tamamlandı
                 </span>
               </h2>
               <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/70">
-                ATS-uyumlu PDF çıktısı, gerekçeli font gömümü, A4 sayfa
-                kurulumu, tek tık indirme. Sıradaki: dark mode, i18n, AI destek.
+                Tüm sprintler tamamlandı. Vercel ile deploy hazır.
+                Profesyonel CV’ni dakikalar içinde oluştur.
               </p>
             </div>
             <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-paper/60">
-              <span>Next</span>
+              <span>Status</span>
               <span className="h-px w-12 bg-paper/40" />
-              <span className="text-accent">Sprint 05+</span>
+              <span className="text-accent">● Prod'da</span>
             </div>
           </div>
         </div>

@@ -79,9 +79,47 @@ src/
 - [x] **Sprint 2** — Form editörü
 - [x] **Sprint 3** — Canlı önizleme & şablonlar
 - [x] **Sprint 4** — PDF export
-- [ ] **Sprint 5** — UX iyileştirmeleri
-- [ ] **Sprint 6** — Test & deploy
-- [ ] **Sprint 7** — AI destek (Claude API)
+- [x] **Sprint 5** — UX iyileştirmeleri
+- [x] **Sprint 6** — Test & deploy
+- [x] **Sprint 7** — AI destek (Claude API)
+
+## 🚀 Deploy (Vercel)
+
+### Tek komutla deploy
+
+```bash
+# Vercel CLI yoksa kur
+npm i -g vercel
+
+# Deploy et
+vercel
+```
+
+Vercel otomatik olarak:
+- `vite build` komutunu çalıştırır
+- `dist/` klasörünü CDN'e yükleer
+- `/editor`, `/preview` gibi SPA route'larını doğru yönlendirir
+
+### GitHub üzerinden deploy (tavsiye edilen)
+
+1. Repoyu GitHub'a push et
+2. [vercel.com](https://vercel.com) → "Add New Project"
+3. GitHub reposunu seç
+4. Framework: **Vite** (otomatik algılanır)
+5. **Deploy** → hazır!
+
+> 🔑 **Önemli:** API anahtarı kullanıcının tarayıcısında saklanır, Vercel'e
+> hiçbir secret eklemen gerekmez.
+
+## 🌐 Üretim Build Testi
+
+```bash
+# Üretim buildını yerel test et
+npm run build
+npm run preview
+```
+
+`http://localhost:4173` adresinde canlı ortam simüle edilir.
 
 ## 📄 Lisans
 
