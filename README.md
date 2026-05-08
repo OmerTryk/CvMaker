@@ -77,8 +77,8 @@ src/
 - [x] **Sprint 0** — Proje kurulumu & temel iskelet
 - [x] **Sprint 1** — Veri modeli & state yönetimi
 - [x] **Sprint 2** — Form editörü
-- [ ] **Sprint 3** — Canlı önizleme & şablonlar
-- [ ] **Sprint 4** — PDF export
+- [x] **Sprint 3** — Canlı önizleme & şablonlar
+- [x] **Sprint 4** — PDF export
 - [ ] **Sprint 5** — UX iyileştirmeleri
 - [ ] **Sprint 6** — Test & deploy
 - [ ] **Sprint 7** — AI destek (Claude API)

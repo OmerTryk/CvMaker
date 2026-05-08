@@ -68,3 +68,66 @@
     scrollbar-width: none;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────
+   PRINT STYLES — for PDF export via window.print()
+   Off-screen during normal browsing; full A4 (210×297mm) when printing.
+   See usePDFExport.ts for the matching pageStyle injected into
+   react-to-print's iframe.
+   ────────────────────────────────────────────────────────────── */
+
+.print-source {
+  position: fixed;
+  left: -100000px;
+  top: 0;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@page {
+  size: 210mm 297mm;
+  margin: 0;
+}
+
+@media print {
+  /* Reset body — no app background, no grain texture */
+  html,
+  body {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body::before {
+    display: none !important;
+  }
+
+  /* Reveal the printable source */
+  .print-source {
+    position: static !important;
+    left: auto !important;
+    top: auto !important;
+    visibility: visible !important;
+  }
+
+  /* The printable page must match @page exactly */
+  .printable-cv-page {
+    width: 210mm !important;
+    height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  /* Force colored backgrounds (sidebars, accents) to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
