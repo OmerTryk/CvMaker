@@ -149,7 +149,7 @@ function ClassicSection({
         </SectionTitle>
         <div className="flex flex-col gap-4">
           {cv.experience.map((exp) => (
-            <div key={exp.id}>
+            <div key={exp.id} className="cv-item">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                 <h3
                   className="text-[13.5px] font-semibold uppercase tracking-wide"
@@ -206,7 +206,7 @@ function ClassicSection({
         </SectionTitle>
         <div className="flex flex-col gap-3">
           {cv.education.map((edu) => (
-            <div key={edu.id}>
+            <div key={edu.id} className="cv-item">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                 <h3
                   className="text-[13.5px] font-semibold uppercase tracking-wide"
@@ -295,7 +295,7 @@ function ClassicSection({
         </SectionTitle>
         <div className="flex flex-col gap-3">
           {cv.projects.map((p) => (
-            <div key={p.id}>
+            <div key={p.id} className="cv-item">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                 <h3
                   className="text-[13px] font-semibold"

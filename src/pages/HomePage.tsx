@@ -12,7 +12,7 @@ const features = [
     icon: Sparkles,
     title: 'AI Destek',
     description:
-      'Claude ile profil özetini güçlendir, deneyim açıklamalarını profesyonel diliyle yeniden yaz.',
+      'Gemini ve Llama ile profil özetini güçlendir, deneyim açıklamalarını profesyonel diliyle yeniden yaz.',
   },
   {
     icon: FileText,
@@ -29,14 +29,6 @@ export function HomePage() {
       <section className="container-prose relative pt-20 pb-32 md:pt-32 md:pb-40">
         <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-8">
-            <p
-              className="mb-6 flex items-center gap-3 font-mono text-xs uppercase tracking-widest text-ink/60 opacity-0 animate-fade-up"
-              style={{ animationDelay: '0ms' }}
-            >
-              <span className="h-px w-8 bg-ink/40" />
-              Sprint 0 · Foundation
-            </p>
-
             <h1
               className="font-display text-5xl font-light leading-[0.95] tracking-tightest text-ink opacity-0 animate-fade-up md:text-7xl lg:text-8xl"
               style={{ animationDelay: '120ms' }}
@@ -128,34 +120,6 @@ export function HomePage() {
               </p>
             </article>
           ))}
-        </div>
-      </section>
-
-      {/* SPRINT STATUS */}
-      <section className="container-prose pb-24">
-        <div className="border border-ink bg-ink p-10 text-paper md:p-14">
-          <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="font-mono text-xs uppercase tracking-widest text-paper/60">
-                Sprint Durumu
-              </p>
-              <h2 className="mt-3 font-display text-3xl font-light leading-tight md:text-4xl">
-                Sprint 6 · Deploy
-                <span className="ml-3 font-sans text-base text-accent">
-                  ● tamamlandı
-                </span>
-              </h2>
-              <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/70">
-                Tüm sprintler tamamlandı. Vercel ile deploy hazır.
-                Profesyonel CV’ni dakikalar içinde oluştur.
-              </p>
-            </div>
-            <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-paper/60">
-              <span>Status</span>
-              <span className="h-px w-12 bg-paper/40" />
-              <span className="text-accent">● Prod'da</span>
-            </div>
-          </div>
         </div>
       </section>
     </div>

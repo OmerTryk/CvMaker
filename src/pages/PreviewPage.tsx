@@ -1,134 +1,265 @@
+import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Edit3 } from 'lucide-react'
+import { ArrowLeft, Edit3, ChevronDown } from 'lucide-react'
 import { useCVStore } from '@/store'
 import { TemplateRenderer } from '@/templates'
-import { TEMPLATE_LIST } from '@/templates/shared/tokens'
+import { TEMPLATE_LIST, A4 } from '@/templates/shared/tokens'
 import { ExportButton } from '@/features/export'
+import { Paginator } from '@/components/ui'
+import { useSmartPageBreaks } from '@/hooks/useSmartPageBreaks'
+import { cn } from '@/lib/utils'
+
+const GRAD_BOT = 40
 
 export function PreviewPage() {
-  const cv = useCVStore((s) => s.cv)
-  const template = useCVStore((s) => s.cv.settings.template)
+  const cv            = useCVStore((s) => s.cv)
+  const template      = useCVStore((s) => s.cv.settings.template)
   const updateSettings = useCVStore((s) => s.updateSettings)
+
+  const [currentPage, setCurrentPage] = useState(0)
+  const [exitPage,    setExitPage]    = useState<number | null>(null)
+  const [dir,         setDir]         = useState<'fwd' | 'bwd'>('fwd')
+  const [animating,   setAnimating]   = useState(false)
+  const [tplOpen,     setTplOpen]     = useState(false)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  const { contentRef, pageOffsets, pageCount } = useSmartPageBreaks(1)
+
+  useEffect(() => {
+    setCurrentPage((p) => Math.min(p, Math.max(0, pageCount - 1)))
+  }, [pageCount])
+
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
+
+  const navigate = (d: 1 | -1) => {
+    if (animating) return
+    const next = Math.max(0, Math.min(pageCount - 1, currentPage + d))
+    if (next === currentPage) return
+    setExitPage(currentPage)
+    setDir(d === 1 ? 'fwd' : 'bwd')
+    setCurrentPage(next)
+    setAnimating(true)
+    timer.current = setTimeout(() => { setExitPage(null); setAnimating(false) }, 380)
+  }
+
+  const adjustedOffset = (page: number) => pageOffsets[page] ?? 0
+
+  const activeTpl = TEMPLATE_LIST.find((t) => t.key === template)
 
   return (
     <div className="container-prose py-10 md:py-14">
-      {/* Header strip */}
-      <div className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+      <style>{`
+        @keyframes ppSlideInR  { from{transform:translateX(102%)} to{transform:translateX(0)} }
+        @keyframes ppSlideOutL { from{transform:translateX(0)} to{transform:translateX(-102%)} }
+        @keyframes ppSlideInL  { from{transform:translateX(-102%)} to{transform:translateX(0)} }
+        @keyframes ppSlideOutR { from{transform:translateX(0)} to{transform:translateX(102%)} }
+      `}</style>
+
+      {/* ── Header row ── */}
+      <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-ink/50">
-            Sprint 04 · PDF Export
+            Önizleme {pageCount > 1 ? `· ${pageCount} sayfa` : ''}
           </p>
           <h1 className="mt-2 font-display text-4xl font-light tracking-tight text-ink md:text-5xl">
             {cv.title || 'CV Önizleme'}
           </h1>
-          <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-ink/40">
-            Hazır olduğunda PDF olarak indir →
-          </p>
         </div>
-
         <div className="flex flex-wrap items-center gap-2">
-          {TEMPLATE_LIST.map((tpl) => {
-            const active = template === tpl.key
-            return (
-              <button
-                key={tpl.key}
-                type="button"
-                onClick={() => updateSettings({ template: tpl.key })}
-                className={`px-4 py-2 font-mono text-[10px] uppercase tracking-widest transition-all duration-200 ${
-                  active
-                    ? 'bg-ink text-paper'
-                    : 'border border-line text-ink/60 hover:border-ink hover:text-ink'
-                }`}
-              >
-                {tpl.name}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
-      {/* Primary CTA — PDF download */}
-      <div className="mb-10 flex flex-wrap items-center justify-between gap-4 border border-ink bg-ink p-6 text-paper">
-        <div>
-          <p className="font-mono text-[10px] uppercase tracking-widest text-paper/60">
-            Hazır mısın?
-          </p>
-          <p className="mt-1 font-display text-xl font-light">
-            CV'ni şimdi <span className="italic text-accent">PDF</span> olarak indir.
-          </p>
-          <p className="mt-2 max-w-md font-mono text-[10px] uppercase tracking-wider text-paper/50">
-            Tarayıcı yazdırma penceresi açılır · "PDF olarak kaydet" seçeneğini seç
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <ExportButton variant="primary" label="PDF olarak indir" />
           <Link
             to="/editor"
-            className="inline-flex items-center gap-2 border border-paper/30 px-4 py-3 font-mono text-xs uppercase tracking-widest text-paper/80 transition-colors hover:bg-paper hover:text-ink"
+            className="inline-flex items-center gap-2 border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ink/60 transition-colors hover:border-ink hover:bg-ink hover:text-paper"
           >
-            <Edit3 size={12} />
-            Düzenle
+            <Edit3 size={12} /> Düzenle
           </Link>
+          <ExportButton variant="primary" label="PDF İndir" />
         </div>
       </div>
 
-      {/* Full-size A4 page (centered) */}
-      <div className="flex justify-center overflow-x-auto">
-        <div
-          className="bg-white shadow-[0_4px_60px_rgba(0,0,0,0.12)]"
-          style={{ width: '794px', height: '1123px', overflow: 'hidden' }}
+      {/* ── Template picker bar ── */}
+      <div className="mb-8 border border-line">
+        {/* Collapsed: show active template + toggle */}
+        <button
+          type="button"
+          onClick={() => setTplOpen((v) => !v)}
+          className="flex w-full items-center justify-between px-5 py-3 transition-colors hover:bg-paper-warm"
         >
-          <TemplateRenderer cv={cv} />
-        </div>
+          <div className="flex items-center gap-4">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-ink/50">
+              Şablon
+            </span>
+            <span className="font-display text-lg font-light text-ink">
+              {activeTpl?.name ?? template}
+            </span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-ink/40">
+              {activeTpl?.description}
+            </span>
+          </div>
+          <ChevronDown
+            size={16}
+            className={cn(
+              'text-ink/40 transition-transform duration-300',
+              tplOpen && 'rotate-180',
+            )}
+          />
+        </button>
+
+        {/* Expanded: all templates in a 3×3 grid */}
+        {tplOpen && (
+          <div className="border-t border-line">
+            {/* Top 7 in 3-col grid */}
+            <div className="grid grid-cols-3 gap-px bg-line md:grid-cols-4 lg:grid-cols-7">
+              {TEMPLATE_LIST.slice(0, 7).map((tpl) => {
+                const active = template === tpl.key
+                return (
+                  <button
+                    key={tpl.key}
+                    type="button"
+                    onClick={() => { updateSettings({ template: tpl.key }); setTplOpen(false) }}
+                    className={cn(
+                      'flex flex-col items-start gap-0.5 bg-paper px-4 py-3 text-left transition-colors hover:bg-paper-warm',
+                      active && 'bg-ink hover:bg-ink',
+                    )}
+                  >
+                    <span className={cn(
+                      'font-display text-sm font-medium',
+                      active ? 'text-paper' : 'text-ink',
+                    )}>
+                      {tpl.name}
+                    </span>
+                    <span className={cn(
+                      'font-mono text-[8px] uppercase tracking-wide leading-tight',
+                      active ? 'text-paper/60' : 'text-ink/35',
+                    )}>
+                      {tpl.description}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Bottom 2 — full-width pair */}
+            <div className="grid grid-cols-2 gap-px bg-line">
+              {TEMPLATE_LIST.slice(7).map((tpl) => {
+                const active = template === tpl.key
+                return (
+                  <button
+                    key={tpl.key}
+                    type="button"
+                    onClick={() => { updateSettings({ template: tpl.key }); setTplOpen(false) }}
+                    className={cn(
+                      'flex items-center gap-4 bg-paper px-5 py-3 text-left transition-colors hover:bg-paper-warm',
+                      active && 'bg-ink hover:bg-ink',
+                    )}
+                  >
+                    <span className={cn(
+                      'font-display text-base font-medium',
+                      active ? 'text-paper' : 'text-ink',
+                    )}>
+                      {tpl.name}
+                    </span>
+                    <span className={cn(
+                      'font-mono text-[9px] uppercase tracking-wide',
+                      active ? 'text-paper/60' : 'text-ink/40',
+                    )}>
+                      {tpl.description}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="mt-8 flex justify-center">
-        <Link
-          to="/editor"
-          className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-ink/50 transition-colors hover:text-accent"
-        >
+      {/* ── Paginator + A4 viewport ── */}
+      <div className="flex flex-col items-center gap-5">
+        {pageCount > 1 && (
+          <Paginator
+            current={currentPage} total={pageCount}
+            onPrev={() => navigate(-1)} onNext={() => navigate(1)}
+            size="md"
+          />
+        )}
+
+        {/* A4 clip viewport */}
+        <div className="overflow-x-auto">
+          <div
+            style={{
+              width: `${A4.widthPX}px`,
+              height: `${A4.heightPX}px`,
+              overflow: 'hidden',
+              position: 'relative',
+              background: 'white',
+              boxShadow: '0 4px 24px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06)',
+            }}
+          >
+            {/* Hidden measurement div */}
+            <div
+              ref={contentRef}
+              style={{
+                position: 'absolute', top: 0, left: 0,
+                width: `${A4.widthPX}px`, minHeight: `${A4.heightPX}px`,
+                visibility: 'hidden', pointerEvents: 'none', zIndex: 0,
+              }}
+            >
+              <TemplateRenderer cv={cv} />
+            </div>
+
+            {/* Exiting page */}
+            {exitPage !== null && (
+              <div
+                key={`exit-${exitPage}`}
+                style={{
+                  position: 'absolute', inset: 0, zIndex: 1,
+                  animation: `${dir === 'fwd' ? 'ppSlideOutL' : 'ppSlideOutR'} .32s cubic-bezier(.4,0,1,1) forwards`,
+                }}
+              >
+                <div style={{ position: 'absolute', top: `-${adjustedOffset(exitPage)}px`, left: 0, width: A4.widthPX }}>
+                  <TemplateRenderer cv={cv} />
+                </div>
+              </div>
+            )}
+
+            {/* Current / entering page */}
+            <div
+              key={`cur-${currentPage}`}
+              style={{
+                position: 'absolute', inset: 0, zIndex: 2,
+                animation: animating
+                  ? `${dir === 'fwd' ? 'ppSlideInR' : 'ppSlideInL'} .32s cubic-bezier(0,0,.2,1) forwards`
+                  : 'none',
+              }}
+            >
+              <div style={{ position: 'absolute', top: `-${adjustedOffset(currentPage)}px`, left: 0, width: A4.widthPX }}>
+                <TemplateRenderer cv={cv} />
+              </div>
+            </div>
+
+            {/* Bottom gradient only — white bg provides top breathing room */}
+            <div style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0,
+              height: `${GRAD_BOT}px`,
+              background: 'linear-gradient(to top, rgba(255,255,255,.95) 20%, transparent 100%)',
+              zIndex: 10, pointerEvents: 'none',
+            }} />
+          </div>
+        </div>
+
+        {pageCount > 1 && (
+          <Paginator
+            current={currentPage} total={pageCount}
+            onPrev={() => navigate(-1)} onNext={() => navigate(1)}
+            size="md"
+          />
+        )}
+      </div>
+
+      <div className="mt-12 flex justify-center">
+        <Link to="/editor" className="inline-flex items-center gap-2 font-mono text-xs uppercase tracking-widest text-ink/50 transition-colors hover:text-accent">
           <ArrowLeft size={14} /> Editöre dön
         </Link>
       </div>
-
-      {/* PDF tips */}
-      <div className="mt-16 grid gap-px bg-line md:grid-cols-3">
-        <Tip
-          number="01"
-          title="Selectable text"
-          description="Çıktı görsel değil; metin seçilebilir, kopyalanabilir, ATS sistemleri okuyabilir."
-        />
-        <Tip
-          number="02"
-          title="Gömülü fontlar"
-          description="Fraunces ve Geist tarayıcı tarafından PDF'e gömülür. Açan kişide eksik font olmaz."
-        />
-        <Tip
-          number="03"
-          title="Tek sayfa A4"
-          description="Tasarım tek sayfa olacak şekilde optimize edildi. İçerik fazlaysa Sprint 5'te otomatik çoklu sayfa."
-        />
-      </div>
-    </div>
-  )
-}
-
-function Tip({
-  number,
-  title,
-  description,
-}: {
-  number: string
-  title: string
-  description: string
-}) {
-  return (
-    <div className="bg-paper-cool p-6">
-      <p className="font-mono text-[10px] uppercase tracking-widest text-ink/30">
-        {number}
-      </p>
-      <h3 className="mt-2 font-display text-lg font-light text-ink">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-ink/60">{description}</p>
     </div>
   )
 }

@@ -182,7 +182,11 @@ export type Reference = z.infer<typeof ReferenceSchema>
 // Settings (template, theme, language)
 // ─────────────────────────────────────────────────────────────
 
-export const TemplateSchema = z.enum(['modern', 'classic', 'minimal'])
+export const TemplateSchema = z.enum([
+  'modern', 'classic', 'minimal',
+  'executive', 'creative', 'technical',
+  'timeline', 'elegant', 'compact',
+])
 export type Template = z.infer<typeof TemplateSchema>
 
 export const ColorThemeSchema = z.enum(['ink', 'sienna', 'forest', 'navy', 'plum'])

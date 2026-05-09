@@ -52,7 +52,6 @@ export function usePDFExport() {
       @media print {
         html, body {
           width: 210mm;
-          height: 297mm;
           margin: 0 !important;
           padding: 0 !important;
           background: #ffffff !important;
@@ -60,18 +59,18 @@ export function usePDFExport() {
           print-color-adjust: exact !important;
         }
 
-        /* The printable element must fill the page exactly */
         .printable-cv-page {
           width: 210mm !important;
-          height: 297mm !important;
+          min-height: 297mm !important;
           margin: 0 !important;
           padding: 0 !important;
-          overflow: hidden !important;
-          page-break-after: avoid !important;
+        }
+
+        .cv-item {
+          break-inside: avoid !important;
           page-break-inside: avoid !important;
         }
 
-        /* Preserve all colors (sidebars, accents, dividers) */
         * {
           -webkit-print-color-adjust: exact !important;
           print-color-adjust: exact !important;

@@ -117,13 +117,15 @@ function Row({
   left,
   right,
   colors,
+  className,
 }: {
   left: React.ReactNode
   right: React.ReactNode
   colors: ReturnType<typeof getColors>
+  className?: string
 }) {
   return (
-    <div className="grid grid-cols-[110px_1fr] gap-6">
+    <div className={`grid grid-cols-[110px_1fr] gap-6 ${className ?? ''}`}>
       <div
         className="pt-0.5 text-[10.5px] uppercase tracking-[0.16em]"
         style={{ color: colors.muted }}
@@ -173,6 +175,7 @@ function MinimalSection({
             <Row
               key={exp.id}
               colors={colors}
+              className="cv-item"
               left={formatDateRange(exp.startDate, exp.current ? null : exp.endDate)}
               right={
                 <div>
@@ -230,6 +233,7 @@ function MinimalSection({
             <Row
               key={edu.id}
               colors={colors}
+              className="cv-item"
               left={formatDateRange(edu.startDate, edu.current ? null : edu.endDate)}
               right={
                 <div>
@@ -328,6 +332,7 @@ function MinimalSection({
             <Row
               key={p.id}
               colors={colors}
+              className="cv-item"
               left={
                 p.startDate
                   ? formatDateRange(p.startDate, p.endDate)

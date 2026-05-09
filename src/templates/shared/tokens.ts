@@ -119,21 +119,15 @@ export interface TemplateMeta {
 }
 
 export const TEMPLATE_LIST: readonly TemplateMeta[] = [
-  {
-    key: 'modern',
-    name: 'Modern',
-    description: 'Renkli sidebar, iki kolon, görsel hiyerarşi',
-  },
-  {
-    key: 'classic',
-    name: 'Klasik',
-    description: 'Tek kolon, klasik tipografi, ATS-friendly',
-  },
-  {
-    key: 'minimal',
-    name: 'Minimal',
-    description: 'Sade, tipografi odaklı, beyaz alan dolu',
-  },
+  { key: 'modern',    name: 'Modern',     description: 'Renkli sidebar, iki kolon' },
+  { key: 'classic',   name: 'Klasik',     description: 'Tek kolon, ATS uyumlu' },
+  { key: 'minimal',   name: 'Minimal',    description: 'Tipografi odaklı' },
+  { key: 'executive', name: 'Executive',  description: 'Koyu başlık bandı' },
+  { key: 'creative',  name: 'Creative',   description: 'Renkli sol panel' },
+  { key: 'technical', name: 'Technical',  description: 'Grid layout, tag pill' },
+  { key: 'timeline',  name: 'Timeline',   description: 'Dikey zaman çizelgesi' },
+  { key: 'elegant',   name: 'Elegant',    description: 'Zarif, ortalanmış, serif' },
+  { key: 'compact',   name: 'Compact',    description: 'Yoğun 3 kolon' },
 ] as const
 
 // ─────────────────────────────────────────────────────────────

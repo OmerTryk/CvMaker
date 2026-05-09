@@ -1,4 +1,4 @@
-# CV Maker
+# CTRLCV
 
 Modern, AI destekli CV oluşturma uygulaması. React + TypeScript + Vite ile geliştirilmiştir.
 

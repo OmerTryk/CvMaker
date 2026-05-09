@@ -1,13 +1,9 @@
 /**
- * PrintableCV — full A4 render of the active template, sized in mm units
- * for pixel-perfect PDF output.
+ * PrintableCV — full-resolution render of the active template for PDF export.
  *
- * Why mm and not px? Browser print engines compute page size in physical
- * units. When the printable element matches the @page size *exactly* in
- * the same unit (mm), no scaling/margin auto-fitting is applied.
- *
- * This element lives off-screen during normal browsing (.print-source)
- * and is the source react-to-print copies into the print iframe.
+ * Uses mm units for width (browser print engine maps 210mm → A4 width exactly).
+ * Height is UNCONSTRAINED (min-height only) so content flows naturally
+ * to page 2, 3, 4... — browser handles page breaks automatically.
  */
 
 import { forwardRef } from 'react'
@@ -27,10 +23,8 @@ export const PrintableCV = forwardRef<HTMLDivElement, PrintableCVProps>(
         className="printable-cv-page"
         style={{
           width: `${A4.widthMM}mm`,
-          height: `${A4.heightMM}mm`,
+          minHeight: `${A4.heightMM}mm`, // min only — allows page 2, 3, 4...
           background: '#ffffff',
-          overflow: 'hidden',
-          // Reset any inherited box-sizing/margin from app context
           margin: 0,
           padding: 0,
           boxSizing: 'border-box',
