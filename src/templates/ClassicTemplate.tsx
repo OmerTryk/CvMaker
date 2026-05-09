@@ -46,7 +46,14 @@ export function ClassicTemplate({ cv }: ClassicTemplateProps) {
       }}
     >
       {/* HEADER — centered identity */}
-      <header className="mb-6 text-center">
+      <header className="mb-6 text-center" style={{ position: 'relative' }}>
+        {cv.personal.photoUrl && (
+          <img
+            src={cv.personal.photoUrl}
+            alt={cv.personal.fullName}
+            style={{ position: 'absolute', right: 0, top: 0, width: '68px', height: '68px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${colors.divider}` }}
+          />
+        )}
         <h1
           className="text-[30px] font-semibold uppercase tracking-[0.18em]"
           style={{ fontFamily: fonts.display, color: colors.primary }}

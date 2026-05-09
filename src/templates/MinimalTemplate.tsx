@@ -35,7 +35,14 @@ export function MinimalTemplate({ cv }: MinimalTemplateProps) {
       }}
     >
       {/* HEADER — bold typography */}
-      <header className="mb-12">
+      <header className="mb-12" style={{ position: 'relative' }}>
+        {cv.personal.photoUrl && (
+          <img
+            src={cv.personal.photoUrl}
+            alt={cv.personal.fullName}
+            style={{ position: 'absolute', right: 0, top: 0, width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${colors.divider}` }}
+          />
+        )}
         <h1
           className="text-[44px] font-light leading-[0.95] tracking-tight"
           style={{ fontFamily: fonts.display, color: colors.text }}

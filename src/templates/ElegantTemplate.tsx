@@ -15,6 +15,13 @@ export function ElegantTemplate({ cv }: { cv: CVDocument }) {
     <article style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '36px 48px', minHeight: '100%' }}>
       {/* Centered header */}
       <header style={{ textAlign: 'center', marginBottom: '24px' }}>
+        {cv.personal.photoUrl && (
+          <img
+            src={cv.personal.photoUrl}
+            alt={cv.personal.fullName}
+            style={{ width: '68px', height: '68px', borderRadius: '50%', objectFit: 'cover', border: `1px solid ${c.divider}`, display: 'block', margin: '0 auto 14px' }}
+          />
+        )}
         <h1 style={{ fontFamily: f.display, fontSize: '32px', fontWeight: 300, letterSpacing: '0.05em', margin: '0 0 6px', color: c.text }}>
           {cv.personal.fullName || 'Ad Soyad'}
         </h1>

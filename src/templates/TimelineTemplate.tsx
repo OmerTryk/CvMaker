@@ -11,6 +11,13 @@ export function TimelineTemplate({ cv }: { cv: CVDocument }) {
     <article style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '28px 36px', minHeight: '100%' }}>
       {/* Header — centered */}
       <header style={{ textAlign: 'center', borderBottom: `1px solid ${c.divider}`, paddingBottom: '18px', marginBottom: '22px' }}>
+        {cv.personal.photoUrl && (
+          <img
+            src={cv.personal.photoUrl}
+            alt={cv.personal.fullName}
+            style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${c.divider}`, display: 'block', margin: '0 auto 12px' }}
+          />
+        )}
         <h1 style={{ fontFamily: f.display, fontSize: '28px', fontWeight: 600, letterSpacing: '-0.01em', margin: '0 0 4px' }}>
           {cv.personal.fullName || 'Ad Soyad'}
         </h1>

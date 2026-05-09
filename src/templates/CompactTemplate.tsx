@@ -21,10 +21,19 @@ export function CompactTemplate({ cv }: { cv: CVDocument }) {
     <article style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '18px 22px', minHeight: '100%', fontSize: '11px' }}>
       {/* Header */}
       <header style={{ borderBottom: `2px solid ${c.primary}`, paddingBottom: '10px', marginBottom: '12px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-          <div>
-            <h1 style={{ fontFamily: f.display, fontSize: '22px', fontWeight: 600, margin: '0 0 2px', letterSpacing: '-0.01em' }}>{cv.personal.fullName || 'Ad Soyad'}</h1>
-            {cv.personal.jobTitle && <p style={{ fontSize: '10.5px', letterSpacing: '0.12em', textTransform: 'uppercase', color: c.muted, margin: 0 }}>{cv.personal.jobTitle}</p>}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            {cv.personal.photoUrl && (
+              <img
+                src={cv.personal.photoUrl}
+                alt={cv.personal.fullName}
+                style={{ width: '42px', height: '42px', borderRadius: '50%', objectFit: 'cover', border: `1.5px solid ${c.divider}`, flexShrink: 0 }}
+              />
+            )}
+            <div>
+              <h1 style={{ fontFamily: f.display, fontSize: '22px', fontWeight: 600, margin: '0 0 2px', letterSpacing: '-0.01em' }}>{cv.personal.fullName || 'Ad Soyad'}</h1>
+              {cv.personal.jobTitle && <p style={{ fontSize: '10.5px', letterSpacing: '0.12em', textTransform: 'uppercase', color: c.muted, margin: 0 }}>{cv.personal.jobTitle}</p>}
+            </div>
           </div>
           <div style={{ textAlign: 'right', fontSize: '10px', color: c.muted, lineHeight: 1.8 }}>
             {cv.contact.email && <div>{cv.contact.email}</div>}
