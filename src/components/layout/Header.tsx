@@ -27,7 +27,7 @@ export function Header({ onHelpOpen, onAIOpen }: HeaderProps) {
           aria-label="CV Maker anasayfa"
         >
           <span className="font-display text-2xl font-medium tracking-tightest text-ink">
-            cv<span className="text-accent">·</span>maker
+            CTRL<span className="text-accent">CV</span>
           </span>
           <span className="hidden font-mono text-[10px] uppercase tracking-widest text-ink/50 sm:inline">
             v0.7
