@@ -11,22 +11,24 @@ export default {
         mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       colors: {
+        // All colors reference CSS custom properties so dark mode is a single
+        // `.dark` class on <html> — no component changes required.
         ink: {
-          DEFAULT: '#111111',
-          soft: '#1f1f1f',
-          muted: '#4a4a4a',
+          DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
+          soft:    'rgb(var(--color-ink-soft) / <alpha-value>)',
+          muted:   'rgb(var(--color-ink-muted) / <alpha-value>)',
         },
         paper: {
-          DEFAULT: '#FAF7F2',
-          warm: '#F3EEE5',
-          cool: '#FFFFFF',
+          DEFAULT: 'rgb(var(--color-paper) / <alpha-value>)',
+          warm:    'rgb(var(--color-paper-warm) / <alpha-value>)',
+          cool:    'rgb(var(--color-paper-cool) / <alpha-value>)',
         },
         accent: {
-          DEFAULT: '#B7410E', // burnt sienna
-          hover: '#9C3409',
-          soft: '#E8C9B5',
+          DEFAULT: 'rgb(var(--color-accent) / <alpha-value>)',
+          hover:   'rgb(var(--color-accent-hover) / <alpha-value>)',
+          soft:    'rgb(var(--color-accent-soft) / <alpha-value>)',
         },
-        line: '#E5DDD0',
+        line: 'rgb(var(--color-line) / <alpha-value>)',
       },
       letterSpacing: {
         tightest: '-0.04em',
@@ -37,11 +39,11 @@ export default {
       },
       keyframes: {
         fadeIn: {
-          '0%': { opacity: '0' },
+          '0%':   { opacity: '0' },
           '100%': { opacity: '1' },
         },
         fadeUp: {
-          '0%': { opacity: '0', transform: 'translateY(16px)' },
+          '0%':   { opacity: '0', transform: 'translateY(16px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
       },

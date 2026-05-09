@@ -178,7 +178,7 @@ export function AIPanel() {
         {/* Footer */}
         <footer className="border-t border-line px-5 py-4">
           <p className="font-mono text-[10px] uppercase tracking-widest text-ink/30">
-            Yanıtlar Claude tarafından üretilir · Her zaman gözden geçir
+            Yanıtlar Gemini & Llama ile üretilir · Her zaman gözden geçir
           </p>
         </footer>
       </aside>

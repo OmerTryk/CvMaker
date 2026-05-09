@@ -3,8 +3,35 @@
 @tailwind utilities;
 
 @layer base {
+  /* ── Light mode (default) ─────────────────────────────── */
   :root {
     color-scheme: light;
+    /* Values are bare R G B — lets Tailwind inject opacity: rgb(var(--x) / .5) */
+    --color-ink:          17  17  17;    /* #111111 */
+    --color-ink-soft:     31  31  31;    /* #1f1f1f */
+    --color-ink-muted:    74  74  74;    /* #4a4a4a */
+    --color-paper:       250 247 242;    /* #FAF7F2 */
+    --color-paper-warm:  243 238 229;    /* #F3EEE5 */
+    --color-paper-cool:  255 255 255;    /* #FFFFFF */
+    --color-accent:      183  65  14;    /* #B7410E */
+    --color-accent-hover:156  52   9;    /* #9C3409 */
+    --color-accent-soft: 232 201 181;    /* #E8C9B5 */
+    --color-line:        229 221 208;    /* #E5DDD0 */
+  }
+
+  /* ── Dark mode ────────────────────────────────────────── */
+  .dark {
+    color-scheme: dark;
+    --color-ink:          245 242 237;   /* warm off-white */
+    --color-ink-soft:     220 215 207;   /* slightly dimmer */
+    --color-ink-muted:    148 141 131;   /* muted warm gray */
+    --color-paper:         18  17  15;   /* very dark warm black */
+    --color-paper-warm:    26  23  20;   /* dark warm surface */
+    --color-paper-cool:    24  24  24;   /* neutral dark */
+    --color-accent:        183  65  14;  /* same sienna */
+    --color-accent-hover:  200  78  22;  /* slightly brighter on dark */
+    --color-accent-soft:    70  30  10;  /* dark sienna tint */
+    --color-line:           48  43  38;  /* dark warm separator */
   }
 
   html {
@@ -27,6 +54,10 @@
     z-index: 1;
     opacity: 0.035;
     background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .dark body::before {
+    opacity: 0.07;
   }
 
   ::selection {

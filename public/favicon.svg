@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="5" fill="#111111"/>
+  <!-- CTRL — küçük, soluk beyaz, üstte -->
+  <text x="16" y="12" text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="7" font-weight="400" letter-spacing="1.5"
+    fill="#FAF7F2" fill-opacity="0.45">CTRL</text>
+  <!-- Sienna ayraç çizgisi -->
+  <line x1="5" y1="15.5" x2="27" y2="15.5" stroke="#B7410E" stroke-width="1.2"/>
+  <!-- CV — sienna, kalın, altta -->
+  <text x="16" y="25" text-anchor="middle"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="11" font-weight="700" letter-spacing="-0.5"
+    fill="#B7410E">CV</text>
+</svg>
