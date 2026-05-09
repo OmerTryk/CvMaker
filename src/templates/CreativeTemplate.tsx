@@ -18,10 +18,18 @@ export function CreativeTemplate({ cv }: { cv: CVDocument }) {
     <article style={{ fontFamily: f.body, color: c.text, display: 'flex', minHeight: '100%', background: c.surface }}>
       {/* Left panel */}
       <aside style={{ width: '220px', flexShrink: 0, background: sidebarBg, padding: '28px 20px' }}>
-        {/* Avatar */}
-        <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: c.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: c.primaryFg, fontSize: '20px', fontWeight: 600, fontFamily: f.display, marginBottom: '12px' }}>
-          {(cv.personal.fullName || 'AY').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
-        </div>
+        {/* Avatar — photo if available, else initials */}
+        {cv.personal.photoUrl ? (
+          <img
+            src={cv.personal.photoUrl}
+            alt={cv.personal.fullName}
+            style={{ width: '72px', height: '72px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${c.divider}`, marginBottom: '12px' }}
+          />
+        ) : (
+          <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: c.primary, display: 'flex', alignItems: 'center', justifyContent: 'center', color: c.primaryFg, fontSize: '20px', fontWeight: 600, fontFamily: f.display, marginBottom: '12px' }}>
+            {(cv.personal.fullName || 'AY').split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()}
+          </div>
+        )}
         <h1 style={{ fontFamily: f.display, fontSize: '18px', fontWeight: 600, color: c.text, margin: '0 0 3px' }}>
           {cv.personal.fullName || 'Ad Soyad'}
         </h1>

@@ -14,7 +14,7 @@ export function TechnicalTemplate({ cv }: { cv: CVDocument }) {
   return (
     <article style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '24px 28px', minHeight: '100%' }}>
       {/* Header */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: `2px solid ${c.primary}`, paddingBottom: '14px', marginBottom: '20px' }}>
+      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: `2px solid ${c.primary}`, paddingBottom: '14px', marginBottom: '20px', position: 'relative' }}>
         <div>
           <h1 style={{ fontFamily: f.display, fontSize: '26px', fontWeight: 600, letterSpacing: '-0.02em', margin: '0 0 3px' }}>
             {cv.personal.fullName || 'Ad Soyad'}
@@ -23,6 +23,13 @@ export function TechnicalTemplate({ cv }: { cv: CVDocument }) {
             {cv.personal.jobTitle}
           </p>
         </div>
+        {cv.personal.photoUrl && (
+          <img
+            src={cv.personal.photoUrl}
+            alt={cv.personal.fullName}
+            style={{ position: 'absolute', left: '50%', top: '0', transform: 'translateX(-50%)', width: '52px', height: '52px', borderRadius: '50%', objectFit: 'cover', border: `2px solid ${c.divider}` }}
+          />
+        )}
         <div style={{ textAlign: 'right', fontSize: '10.5px', color: c.muted, lineHeight: 1.9 }}>
           {cv.contact.email && <div>{cv.contact.email}</div>}
           {cv.contact.github && <div>{normalizeUrl(cv.contact.github)}</div>}

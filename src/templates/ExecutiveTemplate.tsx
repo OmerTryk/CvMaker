@@ -13,7 +13,14 @@ export function ExecutiveTemplate({ cv }: { cv: CVDocument }) {
   return (
     <article style={{ fontFamily: f.body, color: c.text, background: c.surface, height: '100%' }}>
       {/* Dark header band */}
-      <header style={{ background: c.primary, color: c.primaryFg, padding: '28px 36px 22px' }}>
+      <header style={{ background: c.primary, color: c.primaryFg, padding: '28px 36px 22px', position: 'relative' }}>
+        {cv.personal.photoUrl && (
+          <img
+            src={cv.personal.photoUrl}
+            alt={cv.personal.fullName}
+            style={{ position: 'absolute', right: '36px', top: '28px', width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.35)' }}
+          />
+        )}
         <h1 style={{ fontFamily: f.display, fontSize: '28px', fontWeight: 600, letterSpacing: '-0.01em', margin: '0 0 4px' }}>
           {cv.personal.fullName || 'Ad Soyad'}
         </h1>

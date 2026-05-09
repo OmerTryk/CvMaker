@@ -48,6 +48,22 @@ export function ModernTemplate({ cv }: ModernTemplateProps) {
       >
         {/* Identity */}
         <header className="mb-8">
+          {/* Photo */}
+          {cv.personal.photoUrl && (
+            <div className="mb-4">
+              <img
+                src={cv.personal.photoUrl}
+                alt={cv.personal.fullName}
+                style={{
+                  width: '76px',
+                  height: '76px',
+                  borderRadius: '50%',
+                  objectFit: 'cover',
+                  border: `2px solid ${colors.divider}`,
+                }}
+              />
+            </div>
+          )}
           <h1
             className="text-[28px] font-medium leading-[1.05] tracking-tight"
             style={{ fontFamily: fonts.display, color: colors.primary }}
