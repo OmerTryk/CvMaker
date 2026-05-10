@@ -153,3 +153,48 @@ Bu formatı kullanarak analiz yap:
 **💡 Öncelikli İpucu**
 (en önemli tek iyileştirme)`
 }
+
+// ─────────────────────────────────────────────────────────────
+// Job Match Analyzer
+// ─────────────────────────────────────────────────────────────
+
+export function buildJobMatchPrompt(
+  cv: CVDocument,
+  jobDescription: string,
+  matched: string[],
+  missing: string[],
+): string {
+  const cvSummary = [
+    `Ad: ${cv.personal.fullName || 'Belirtilmemiş'}`,
+    `Hedef Pozisyon: ${cv.personal.jobTitle || 'Belirtilmemiş'}`,
+    `Özet: ${cv.summary.content || '(yok)'}`,
+    `Yetenekler: ${cv.skills.map((s) => s.name).join(', ') || '(yok)'}`,
+    `Deneyimler:\n${cv.experience.map((e) => `  - ${e.position} @ ${e.company}: ${e.description.slice(0, 120)}`).join('\n') || '  (yok)'}`,
+    `Projeler: ${cv.projects.map((p) => p.name).join(', ') || '(yok)'}`,
+  ].join('\n')
+
+  return `Aşağıdaki CV ve iş ilanını analiz et. SADECE JSON döndür, başka hiçbir şey yazma.
+
+İŞ İLANI:
+${jobDescription.slice(0, 2000)}
+
+ADAY CV:
+${cvSummary}
+
+ÖNCEDEN TESPİT EDİLEN:
+- Eşleşen anahtar kelimeler: ${matched.slice(0, 20).join(', ') || '(yok)'}
+- Eksik anahtar kelimeler: ${missing.slice(0, 20).join(', ') || '(yok)'}
+
+Aşağıdaki JSON yapısını AYNEN döndür (markdown, kod bloğu YOK):
+{
+  "score": <0-100 arası sayı>,
+  "strengths": ["güçlü yön 1", "güçlü yön 2", "güçlü yön 3"],
+  "gaps": ["eksik 1", "eksik 2", "eksik 3"],
+  "suggestions": [
+    {"action": "yapılacak şey", "why": "neden önemli"},
+    {"action": "yapılacak şey", "why": "neden önemli"},
+    {"action": "yapılacak şey", "why": "neden önemli"}
+  ],
+  "tailoredSummary": "Bu pozisyon için 2-3 cümlelik CV özeti"
+}`
+}

@@ -15,6 +15,7 @@ import { EditorShell } from '@/features/editor'
 import { WelcomeBanner } from '@/features/editor/WelcomeBanner'
 import { PreviewPane } from '@/features/preview'
 import { CVScoreWidget } from '@/features/score/CVScoreWidget'
+import { JobMatchWidget } from '@/features/score/JobMatchWidget'
 import { useKeyboardShortcuts, META_LABEL } from '@/hooks/useKeyboardShortcuts'
 import { formatRelative } from '@/utils/date'
 import { cn } from '@/lib/utils'
@@ -242,6 +243,9 @@ export function EditorPage() {
 
       {/* SCORES */}
       <CVScoreWidget />
+
+      {/* JOB MATCH */}
+      <JobMatchWidget />
 
       {/* WELCOME BANNER — only when empty */}
       {isEmpty && <WelcomeBanner />}
