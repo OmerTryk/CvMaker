@@ -14,6 +14,7 @@ import { useCVStore } from '@/store'
 import { EditorShell } from '@/features/editor'
 import { WelcomeBanner } from '@/features/editor/WelcomeBanner'
 import { PreviewPane } from '@/features/preview'
+import { CVScoreWidget } from '@/features/score/CVScoreWidget'
 import { useKeyboardShortcuts, META_LABEL } from '@/hooks/useKeyboardShortcuts'
 import { formatRelative } from '@/utils/date'
 import { cn } from '@/lib/utils'
@@ -146,9 +147,6 @@ export function EditorPage() {
       {/* TOP BAR */}
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex-1">
-          <p className="font-mono text-xs uppercase tracking-widest text-ink/50">
-            Sprint 05 · Polish
-          </p>
           <input
             value={title}
             onChange={(e) => updateTitle(e.target.value)}
@@ -241,6 +239,9 @@ export function EditorPage() {
           </ToolbarButton>
         </div>
       </div>
+
+      {/* SCORES */}
+      <CVScoreWidget />
 
       {/* WELCOME BANNER — only when empty */}
       {isEmpty && <WelcomeBanner />}

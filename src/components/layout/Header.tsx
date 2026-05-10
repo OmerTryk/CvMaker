@@ -5,9 +5,9 @@ import { META_LABEL } from '@/hooks/useKeyboardShortcuts'
 import { useAIStore } from '@/store'
 
 const navItems = [
-  { to: '/', label: 'Anasayfa', end: true },
-  { to: '/editor', label: 'Editör' },
-  { to: '/preview', label: 'Önizleme' },
+  { to: '/dashboard', label: 'CV\'lerim', end: true },
+  { to: '/editor',    label: 'Editör' },
+  { to: '/preview',   label: 'Önizleme' },
 ]
 
 interface HeaderProps {

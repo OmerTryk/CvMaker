@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Edit3, ChevronDown } from 'lucide-react'
+import { ArrowLeft, Edit3 } from 'lucide-react'
 import { useCVStore } from '@/store'
 import { TemplateRenderer } from '@/templates'
 import { TEMPLATE_LIST, A4 } from '@/templates/shared/tokens'
@@ -20,7 +20,6 @@ export function PreviewPage() {
   const [exitPage,    setExitPage]    = useState<number | null>(null)
   const [dir,         setDir]         = useState<'fwd' | 'bwd'>('fwd')
   const [animating,   setAnimating]   = useState(false)
-  const [tplOpen,     setTplOpen]     = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const { contentRef, pageOffsets, pageCount } = useSmartPageBreaks(1)
@@ -76,14 +75,9 @@ export function PreviewPage() {
         </div>
       </div>
 
-      {/* ── Template picker bar ── */}
+      {/* Template picker — always open */}
       <div className="mb-8 border border-line">
-        {/* Collapsed: show active template + toggle */}
-        <button
-          type="button"
-          onClick={() => setTplOpen((v) => !v)}
-          className="flex w-full items-center justify-between px-5 py-3 transition-colors hover:bg-paper-warm"
-        >
+        <div className="border-b border-line px-5 py-3">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] uppercase tracking-widest text-ink/50">
               Şablon
@@ -95,81 +89,57 @@ export function PreviewPage() {
               {activeTpl?.description}
             </span>
           </div>
-          <ChevronDown
-            size={16}
-            className={cn(
-              'text-ink/40 transition-transform duration-300',
-              tplOpen && 'rotate-180',
-            )}
-          />
-        </button>
+        </div>
 
-        {/* Expanded: all templates in a 3×3 grid */}
-        {tplOpen && (
-          <div className="border-t border-line">
-            {/* Top 7 in 3-col grid */}
-            <div className="grid grid-cols-3 gap-px bg-line md:grid-cols-4 lg:grid-cols-7">
-              {TEMPLATE_LIST.slice(0, 7).map((tpl) => {
-                const active = template === tpl.key
-                return (
-                  <button
-                    key={tpl.key}
-                    type="button"
-                    onClick={() => { updateSettings({ template: tpl.key }); setTplOpen(false) }}
-                    className={cn(
-                      'flex flex-col items-start gap-0.5 bg-paper px-4 py-3 text-left transition-colors hover:bg-paper-warm',
-                      active && 'bg-ink hover:bg-ink',
-                    )}
-                  >
-                    <span className={cn(
-                      'font-display text-sm font-medium',
-                      active ? 'text-paper' : 'text-ink',
-                    )}>
-                      {tpl.name}
-                    </span>
-                    <span className={cn(
-                      'font-mono text-[8px] uppercase tracking-wide leading-tight',
-                      active ? 'text-paper/60' : 'text-ink/35',
-                    )}>
-                      {tpl.description}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
+        {/* Top 7 */}
+        <div className="grid grid-cols-3 gap-px bg-line md:grid-cols-4 lg:grid-cols-7">
+          {TEMPLATE_LIST.slice(0, 7).map((tpl) => {
+            const active = template === tpl.key
+            return (
+              <button
+                key={tpl.key}
+                type="button"
+                onClick={() => updateSettings({ template: tpl.key })}
+                className={cn(
+                  'flex flex-col items-start gap-0.5 bg-paper px-4 py-3 text-left transition-colors hover:bg-paper-warm',
+                  active && 'bg-ink hover:bg-ink',
+                )}
+              >
+                <span className={cn('font-display text-sm font-medium', active ? 'text-paper' : 'text-ink')}>
+                  {tpl.name}
+                </span>
+                <span className={cn('font-mono text-[8px] uppercase tracking-wide leading-tight', active ? 'text-paper/60' : 'text-ink/35')}>
+                  {tpl.description}
+                </span>
+              </button>
+            )
+          })}
+        </div>
 
-            {/* Bottom 2 — full-width pair */}
-            <div className="grid grid-cols-2 gap-px bg-line">
-              {TEMPLATE_LIST.slice(7).map((tpl) => {
-                const active = template === tpl.key
-                return (
-                  <button
-                    key={tpl.key}
-                    type="button"
-                    onClick={() => { updateSettings({ template: tpl.key }); setTplOpen(false) }}
-                    className={cn(
-                      'flex items-center gap-4 bg-paper px-5 py-3 text-left transition-colors hover:bg-paper-warm',
-                      active && 'bg-ink hover:bg-ink',
-                    )}
-                  >
-                    <span className={cn(
-                      'font-display text-base font-medium',
-                      active ? 'text-paper' : 'text-ink',
-                    )}>
-                      {tpl.name}
-                    </span>
-                    <span className={cn(
-                      'font-mono text-[9px] uppercase tracking-wide',
-                      active ? 'text-paper/60' : 'text-ink/40',
-                    )}>
-                      {tpl.description}
-                    </span>
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        )}
+        {/* Bottom 2 */}
+        <div className="grid grid-cols-2 gap-px bg-line">
+          {TEMPLATE_LIST.slice(7).map((tpl) => {
+            const active = template === tpl.key
+            return (
+              <button
+                key={tpl.key}
+                type="button"
+                onClick={() => updateSettings({ template: tpl.key })}
+                className={cn(
+                  'flex items-center gap-4 bg-paper px-5 py-3 text-left transition-colors hover:bg-paper-warm',
+                  active && 'bg-ink hover:bg-ink',
+                )}
+              >
+                <span className={cn('font-display text-base font-medium', active ? 'text-paper' : 'text-ink')}>
+                  {tpl.name}
+                </span>
+                <span className={cn('font-mono text-[9px] uppercase tracking-wide', active ? 'text-paper/60' : 'text-ink/40')}>
+                  {tpl.description}
+                </span>
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* ── Paginator + A4 viewport ── */}
