@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"console.log\\(require\\('./node_modules/pdfjs-dist/package.json'\\).version\\)\")",
+      "Bash(node -e \"const p = require\\('./node_modules/pdfjs-dist/package.json'\\); console.log\\('main:', p.main\\); console.log\\('module:', p.module\\); console.log\\('exports keys:', Object.keys\\(p.exports || {}\\).join\\(', '\\)\\)\")",
+      "Bash(node -e \"const t = require\\('fs'\\).readFileSync\\('./node_modules/pdfjs-dist/types/src/display/api.d.ts', 'utf8'\\); const idx = t.indexOf\\('TextItem'\\); console.log\\(t.slice\\(idx, idx+300\\)\\)\")",
+      "Bash(npm run *)",
+      "WebSearch"
+    ]
+  }
+}

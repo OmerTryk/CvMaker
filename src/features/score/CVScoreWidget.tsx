@@ -34,7 +34,7 @@ export function CVScoreWidget() {
   const [open, setOpen] = useState<'completion' | 'ats' | null>(null)
 
   return (
-    <div className="mb-6 grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
       <ScoreCard
         icon={<BarChart3 size={14} />}
         title="Tamamlanma"

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, Edit3 } from 'lucide-react'
 import { useCVStore } from '@/store'
@@ -20,9 +20,22 @@ export function PreviewPage() {
   const [exitPage,    setExitPage]    = useState<number | null>(null)
   const [dir,         setDir]         = useState<'fwd' | 'bwd'>('fwd')
   const [animating,   setAnimating]   = useState(false)
+  const [a4Scale,     setA4Scale]     = useState(1)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const { contentRef, pageOffsets, pageCount } = useSmartPageBreaks(1)
+  // Compute scale so A4 fits the available viewport width on small screens
+  const computeScale = useCallback(() => {
+    const avail = document.documentElement.clientWidth - 48 // 24px side padding × 2
+    setA4Scale(Math.min(1, avail / A4.widthPX))
+  }, [])
+
+  useEffect(() => {
+    computeScale()
+    window.addEventListener('resize', computeScale)
+    return () => window.removeEventListener('resize', computeScale)
+  }, [computeScale])
+
+  const { contentRef, pageOffsets, pageCount } = useSmartPageBreaks(a4Scale)
 
   useEffect(() => {
     setCurrentPage((p) => Math.min(p, Math.max(0, pageCount - 1)))
@@ -60,7 +73,7 @@ export function PreviewPage() {
           <p className="font-mono text-xs uppercase tracking-widest text-ink/50">
             Önizleme {pageCount > 1 ? `· ${pageCount} sayfa` : ''}
           </p>
-          <h1 className="mt-2 font-display text-4xl font-light tracking-tight text-ink md:text-5xl">
+          <h1 className="mt-2 font-display text-2xl font-light tracking-tight text-ink sm:text-3xl md:text-5xl">
             {cv.title || 'CV Önizleme'}
           </h1>
         </div>
@@ -92,7 +105,7 @@ export function PreviewPage() {
         </div>
 
         {/* Top 7 */}
-        <div className="grid grid-cols-3 gap-px bg-line md:grid-cols-4 lg:grid-cols-7">
+        <div className="grid grid-cols-2 gap-px bg-line sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
           {TEMPLATE_LIST.slice(0, 7).map((tpl) => {
             const active = template === tpl.key
             return (
@@ -108,7 +121,7 @@ export function PreviewPage() {
                 <span className={cn('font-display text-sm font-medium', active ? 'text-paper' : 'text-ink')}>
                   {tpl.name}
                 </span>
-                <span className={cn('font-mono text-[8px] uppercase tracking-wide leading-tight', active ? 'text-paper/60' : 'text-ink/35')}>
+                <span className={cn('font-mono text-[9px] uppercase tracking-wide leading-tight', active ? 'text-paper/60' : 'text-ink/35')}>
                   {tpl.description}
                 </span>
               </button>
@@ -152,16 +165,27 @@ export function PreviewPage() {
           />
         )}
 
-        {/* A4 clip viewport */}
-        <div className="overflow-x-auto">
+        {/* A4 clip viewport — scales down on small screens */}
+        <div
+          style={{
+            width: `${Math.round(A4.widthPX * a4Scale)}px`,
+            height: `${Math.round(A4.heightPX * a4Scale)}px`,
+            overflow: 'hidden',
+            position: 'relative',
+            boxShadow: '0 4px 24px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06)',
+          }}
+        >
+          {/* Inner: full A4 size, scaled via CSS transform */}
           <div
             style={{
               width: `${A4.widthPX}px`,
               height: `${A4.heightPX}px`,
-              overflow: 'hidden',
-              position: 'relative',
+              transform: `scale(${a4Scale})`,
+              transformOrigin: 'top left',
+              position: 'absolute',
+              top: 0,
+              left: 0,
               background: 'white',
-              boxShadow: '0 4px 24px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06)',
             }}
           >
             {/* Hidden measurement div */}
@@ -206,7 +230,7 @@ export function PreviewPage() {
               </div>
             </div>
 
-            {/* Bottom gradient only — white bg provides top breathing room */}
+            {/* Bottom gradient only */}
             <div style={{
               position: 'absolute', bottom: 0, left: 0, right: 0,
               height: `${GRAD_BOT}px`,

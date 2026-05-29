@@ -7,6 +7,7 @@ const DashboardPage = lazy(() => import('@/pages/DashboardPage').then((m) => ({ 
 const HomePage      = lazy(() => import('@/pages/HomePage').then((m) => ({ default: m.HomePage })))
 const EditorPage    = lazy(() => import('@/pages/EditorPage').then((m) => ({ default: m.EditorPage })))
 const PreviewPage   = lazy(() => import('@/pages/PreviewPage').then((m) => ({ default: m.PreviewPage })))
+const JobsPage      = lazy(() => import('@/pages/JobsPage').then((m) => ({ default: m.JobsPage })))
 
 function PageLoader() {
   return (
@@ -32,6 +33,7 @@ export const router = createBrowserRouter([
       { path: 'dashboard',    element: <S><DashboardPage /></S> },
       { path: 'editor',       element: <S><EditorPage /></S> },
       { path: 'preview',      element: <S><PreviewPage /></S> },
+      { path: 'jobs',         element: <S><JobsPage /></S> },
       { path: '*',            element: <NotFoundPage /> },
     ],
   },

@@ -155,6 +155,98 @@ Bu formatı kullanarak analiz yap:
 }
 
 // ─────────────────────────────────────────────────────────────
+// Company Finder — Gemini Google Search grounding
+//
+// We surface real COMPANIES the candidate can apply to (not individual
+// postings). Companies are stable, well-known entities Gemini can name
+// accurately, which avoids the hallucinated/wrong-posting problem.
+// ─────────────────────────────────────────────────────────────
+
+export const JOB_SEARCH_SYSTEM = `Sen bir Türk kariyer asistanısın. Google aramasıyla, adayın profiline uygun GERÇEK şirketleri bulursun — aday bu şirketlere başvurabilir.
+
+ÇIKTI KURALI: Yanıtın tamamen aşağıdaki formatta olsun. Giriş cümlesi, başlık veya ek metin YAZMA.
+
+Örnek format (her şirketi === ile bitir):
+ŞİRKET: Trendyol
+SEKTÖR: E-ticaret / Teknoloji
+KONUM: İstanbul
+NEDEN: Büyük frontend ekibi React ve TypeScript ile çalışıyor, düzenli alım yapıyor.
+KAYNAK: kariyer.net
+===
+ŞİRKET: Getir
+SEKTÖR: Hızlı teslimat / Teknoloji
+KONUM: İstanbul
+NEDEN: Yüksek trafikli mobil ve backend sistemleri için sık sık geliştirici arıyor.
+KAYNAK: linkedin
+===
+
+KURALLAR:
+- SADECE Türkiye'de gerçekten faaliyet gösteren, var olan şirketleri yaz. Şirket UYDURMA.
+- Şirketler adayın pozisyonu, sektörü ve kıdemiyle alakalı olsun.
+- NEDEN alanına o şirketin adaya neden uygun olduğunu 1 cümleyle yaz.
+- KAYNAK alanına başvurunun yapılabileceği yeri yaz: kariyer.net, linkedin veya şirket sitesi.
+- Aynı şirketi tekrar etme.`
+
+export const JOB_CHAT_SYSTEM = `Sen Türkçe konuşan bir kariyer danışmanı ve iş arama asistanısın.
+Kullanıcının CV bilgilerini göz önünde bulundurarak kariyer tavsiyesi verir, uygun şirketler önerir ve sorularını yanıtlarsın.
+Yanıtların kısa, net ve pratik olsun. Gerektiğinde Google araması yaparak güncel bilgi getirebilirsin.`
+
+export function buildJobSearchPrompt(
+  jobTitle: string,
+  skills: string,
+  location: string,
+  exclude: string[] = [],
+): string {
+  const excludeNote = exclude.length
+    ? `\n\nŞu şirketleri ASLA tekrar etme, bunların DIŞINDA tamamen farklı şirketler bul:\n${exclude.join(', ')}`
+    : ''
+  return `Türkiye'de "${jobTitle}" pozisyonu için başvurabileceğim gerçek şirketleri Google'da araştır.
+Tercih edilen konum: ${location}
+Aday yetenekleri: ${skills || 'belirtilmemiş'}
+
+Bu profile uygun, gerçekten var olan EN FAZLA 16 şirket bul (kariyer.net, linkedin ve şirket kariyer sayfalarını referans al).
+Her birini sırayla === formatında listele. Aynı şirket tekrar etmesin.${excludeNote}`
+}
+
+// ─────────────────────────────────────────────────────────────
+// CV Extractor — PDF / plain-text import
+// ─────────────────────────────────────────────────────────────
+
+export const CV_EXTRACTOR_SYSTEM = `Sen bir CV ayrıştırma motorusun.
+Ham CV metnini yapılandırılmış JSON'a dönüştürürsün.
+SADECE JSON çıktısı üret. Markdown, açıklama veya kod bloğu EKLEME.`
+
+export function buildCVExtractPrompt(rawText: string): string {
+  const text = rawText.slice(0, 8000)
+  return `Aşağıdaki CV metnini ayrıştır. SADECE JSON döndür, başka hiçbir şey yazma.
+
+${text}
+
+Kullanılacak JSON yapısı:
+{
+  "personal": { "fullName": "", "jobTitle": "" },
+  "contact": { "email": "", "phone": "", "location": "", "website": "", "linkedin": "", "github": "", "twitter": "" },
+  "summary": "",
+  "experience": [
+    { "company": "", "position": "", "location": "", "startDate": "YYYY-MM", "endDate": "YYYY-MM veya null", "current": false, "description": "", "achievements": [] }
+  ],
+  "education": [
+    { "institution": "", "degree": "", "field": "", "location": "", "startDate": "YYYY-MM", "endDate": "YYYY-MM veya null", "current": false, "gpa": "", "description": "" }
+  ],
+  "skills": [{ "name": "", "level": 3, "category": "" }],
+  "languages": [{ "name": "", "proficiency": "A1|A2|B1|B2|C1|C2|Native" }],
+  "certificates": [{ "name": "", "issuer": "", "date": "YYYY-MM", "url": "", "credentialId": "" }],
+  "projects": [{ "name": "", "description": "", "url": "", "technologies": [], "startDate": null, "endDate": null }]
+}
+
+Kurallar:
+- Tarihleri YYYY-MM formatına çevir. Bilinmiyorsa boş string bırak.
+- Hala devam eden deneyimde endDate null, current true yaz.
+- Boş alanlar için boş string veya boş dizi kullan.
+- YALNIZCA JSON döndür.`
+}
+
+// ─────────────────────────────────────────────────────────────
 // Job Match Analyzer
 // ─────────────────────────────────────────────────────────────
 

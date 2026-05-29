@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { Plus, Edit3, Copy, Trash2, Eye, FileText } from 'lucide-react'
 import { useCVStore } from '@/store'
 import { useCVListStore, THEME_COLORS, TEMPLATE_LABELS, type CVListItem } from '@/store/cv-list-store'
@@ -22,18 +22,30 @@ export function DashboardPage() {
   const duplicateSnap = useCVListStore((s) => s.duplicateSnapshot)
   const saveSnapshot  = useCVListStore((s) => s.saveSnapshot)
 
-  // Open a CV in the editor
-  const handleOpen = useCallback((id: string) => {
+  // Resolve and load a CV, then navigate to the given route
+  const handleSwitch = useCallback((id: string, route: '/editor' | '/preview') => {
     if (id === activeId) {
-      navigate('/editor')
+      navigate(route)
       return
     }
+    // Always persist current CV before switching (guards against missing snapshots)
+    saveSnapshot(cv)
     const loaded = switchTo(id, cv)
     if (loaded) {
       loadCV(loaded)
-      navigate('/editor')
+      navigate(route)
     }
-  }, [activeId, cv, switchTo, loadCV, navigate])
+  }, [activeId, cv, switchTo, loadCV, navigate, saveSnapshot])
+
+  // Open a CV in the editor
+  const handleOpen = useCallback((id: string) => {
+    handleSwitch(id, '/editor')
+  }, [handleSwitch])
+
+  // Open a CV in preview (separate from handleOpen — no /editor conflict)
+  const handlePreview = useCallback((id: string) => {
+    handleSwitch(id, '/preview')
+  }, [handleSwitch])
 
   // Create a new empty CV
   const handleCreate = useCallback(() => {
@@ -98,12 +110,12 @@ export function DashboardPage() {
   return (
     <div className="container-prose py-10 md:py-14">
       {/* Header */}
-      <div className="mb-10 flex items-end justify-between">
+      <div className="mb-8 flex flex-wrap items-end justify-between gap-4 md:mb-10">
         <div>
           <p className="font-mono text-xs uppercase tracking-widest text-ink/50">
             CTRLCV
           </p>
-          <h1 className="mt-2 font-display text-4xl font-light tracking-tight text-ink md:text-5xl">
+          <h1 className="mt-2 font-display text-3xl font-light tracking-tight text-ink md:text-5xl">
             CV'lerim
           </h1>
         </div>
@@ -125,6 +137,7 @@ export function DashboardPage() {
             item={item}
             isActive={item.id === activeId}
             onOpen={() => handleOpen(item.id)}
+            onPreview={() => handlePreview(item.id)}
             onDuplicate={() => handleDuplicate(item)}
             onDelete={() => handleDelete(item)}
           />
@@ -172,12 +185,14 @@ function CVCard({
   item,
   isActive,
   onOpen,
+  onPreview,
   onDuplicate,
   onDelete,
 }: {
   item: CVListItem
   isActive: boolean
   onOpen: () => void
+  onPreview: () => void
   onDuplicate: () => void
   onDelete: () => void
 }) {
@@ -253,14 +268,14 @@ function CVCard({
             <Edit3 size={11} />
             Düzenle
           </button>
-          <Link
-            to="/preview"
-            onClick={onOpen}
+          <button
+            type="button"
+            onClick={onPreview}
             className="inline-flex items-center gap-1.5 border border-line px-3 py-1.5 font-mono text-[9px] uppercase tracking-widest text-ink/60 transition-colors hover:border-ink hover:text-ink"
           >
             <Eye size={11} />
             Önizle
-          </Link>
+          </button>
           <div className="ml-auto flex gap-1">
             <button
               type="button"

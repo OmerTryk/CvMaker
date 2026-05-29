@@ -48,6 +48,9 @@ export default defineConfig({
             './src/templates/TemplateRenderer.tsx',
           ],
 
+          // PDF import — only loaded when user imports a PDF
+          'vendor-pdf': ['pdfjs-dist'],
+
           // AI panel — only needed when user opens AI drawer
           'ai': [
             './src/features/ai/AIPanel.tsx',

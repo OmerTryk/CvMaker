@@ -264,6 +264,60 @@ export function JobMatchWidget() {
         </div>
       </div>
 
+      {/* ── Local insights (no AI) ─────────────────────────── */}
+
+      {/* Category coverage */}
+      {result.categories && result.categories.length > 0 && (
+        <div className="border-t border-line px-4 py-3">
+          <p className="mb-2 font-mono text-[9px] uppercase tracking-widest text-ink/50">
+            Alan Bazlı Uyum
+          </p>
+          <div className="flex flex-col gap-1.5">
+            {result.categories.map((c) => (
+              <div key={c.category} className="flex items-center gap-2">
+                <span className="w-24 shrink-0 truncate font-mono text-[10px] text-ink/55">{c.label}</span>
+                <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+                  <div
+                    className={cn('h-full rounded-full transition-all duration-500', BAR_BG[SCORE_COLOR(c.score)])}
+                    style={{ width: `${c.score}%` }}
+                  />
+                </div>
+                <span className="w-10 shrink-0 text-right font-mono text-[9px] text-ink/40">{c.matched}/{c.total}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Experience comparison */}
+      {result.requiredYears != null && (
+        <div className="border-t border-line px-4 py-3">
+          <p className="mb-1 font-mono text-[9px] uppercase tracking-widest text-ink/50">Deneyim</p>
+          <p className="text-xs text-ink/70">
+            İlan ~<strong className="font-semibold">{result.requiredYears} yıl</strong> istiyor · CV'nde ~
+            <strong className="font-semibold">{result.cvYears ?? 0} yıl</strong>
+            {(result.cvYears ?? 0) >= result.requiredYears
+              ? <span className="ml-1.5 text-emerald-600 dark:text-emerald-400">✓ yeterli</span>
+              : <span className="ml-1.5 text-amber-600 dark:text-amber-400">eksik görünüyor</span>}
+          </p>
+        </div>
+      )}
+
+      {/* Local recommendations */}
+      {result.recommendations && result.recommendations.length > 0 && (
+        <div className="border-t border-line px-4 py-3">
+          <p className="mb-2 font-mono text-[9px] uppercase tracking-widest text-accent">Öneriler</p>
+          <ul className="flex flex-col gap-1.5">
+            {result.recommendations.map((r, i) => (
+              <li key={i} className="flex items-start gap-2 text-xs leading-relaxed text-ink/70">
+                <span className="mt-0.5 shrink-0 text-accent">→</span>
+                {r}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {/* Actions */}
       <div className="flex items-center gap-2 border-t border-line px-4 py-3">
         {apiKey ? (
