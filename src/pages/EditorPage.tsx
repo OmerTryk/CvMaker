@@ -10,12 +10,14 @@ import {
   Edit3,
   Eye,
   ExternalLink,
+  FileUp,
 } from 'lucide-react'
 import { useCVStore } from '@/store'
 import { useAIStore, PROVIDERS } from '@/store/ai-store'
 import { isValidKeyFormat } from '@/lib/ai-client'
 import { EditorShell } from '@/features/editor'
 import { WelcomeBanner } from '@/features/editor/WelcomeBanner'
+import { ImportPDFModal } from '@/features/import'
 import { PreviewPane } from '@/features/preview'
 import { CVScoreWidget } from '@/features/score/CVScoreWidget'
 import { JobMatchWidget } from '@/features/score/JobMatchWidget'
@@ -59,6 +61,7 @@ export function EditorPage() {
   const isEmpty = useIsCVEmpty()
   const [mobileView, setMobileView] = useState<MobileView>('editor')
   const [toast, setToast] = useState<{ type: 'ok' | 'err'; msg: string } | null>(null)
+  const [pdfModalOpen, setPdfModalOpen] = useState(false)
   const [, force] = useState(0)
   const fileRef = useRef<HTMLInputElement>(null)
 
@@ -200,6 +203,13 @@ export function EditorPage() {
           JSON yükle
         </ToolbarButton>
 
+        <ToolbarButton
+          onClick={() => setPdfModalOpen(true)}
+          icon={<FileUp size={12} />}
+        >
+          PDF'ten içe aktar
+        </ToolbarButton>
+
         <input
           ref={fileRef}
           type="file"
@@ -311,7 +321,9 @@ export function EditorPage() {
         </div>
 
         <div className={cn('min-w-0', mobileView === 'editor' && 'hidden lg:block')}>
-          <div className="lg:sticky lg:top-20">
+          <div className="flex flex-col gap-4 lg:sticky lg:top-20">
+            {/* Scores panel — beside the CV preview */}
+            <CVScoreWidget />
             <PreviewPane />
           </div>
         </div>
@@ -328,6 +340,14 @@ export function EditorPage() {
           Sıfırla
         </ToolbarButton>
       </div>
+
+      {/* PDF Import Modal */}
+      {pdfModalOpen && (
+        <ImportPDFModal
+          onClose={() => setPdfModalOpen(false)}
+          onSuccess={(msg) => showToast('ok', msg)}
+        />
+      )}
 
       {/* Toast */}
       {toast && (

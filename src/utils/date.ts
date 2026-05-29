@@ -78,6 +78,56 @@ export function nowISO(): string {
  * Formats an ISO timestamp into a relative time string (Turkish).
  * @example formatRelative(Date.now() - 30000) -> '30 saniye önce'
  */
+const MONTH_MAP: Record<string, string> = {
+  ocak: '01', şubat: '02', mart: '03', nisan: '04',
+  mayıs: '05', haziran: '06', temmuz: '07', ağustos: '08',
+  eylül: '09', ekim: '10', kasım: '11', aralık: '12',
+  january: '01', february: '02', march: '03', april: '04',
+  may: '05', june: '06', july: '07', august: '08',
+  september: '09', october: '10', november: '11', december: '12',
+  jan: '01', feb: '02', mar: '03', apr: '04',
+  jun: '06', jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+}
+
+/**
+ * Parses various date string formats into YYYY-MM, or null when the value
+ * represents "ongoing" (Present, Devam ediyor, …) or cannot be parsed.
+ */
+export function parseToMonthDate(value: string | null | undefined): string | null {
+  if (!value) return null
+  const v = value.trim()
+  if (!v) return null
+
+  // "present / devam / halen / şu an" → ongoing
+  if (/present|current|devam|halen|günümüz|şu an|bugün/i.test(v)) return null
+
+  // Already YYYY-MM
+  if (/^\d{4}-\d{2}$/.test(v)) return v
+
+  // YYYY-MM-DD → drop the day
+  const full = /^(\d{4})-(\d{2})-\d{2}$/.exec(v)
+  if (full) return `${full[1]}-${full[2]}`
+
+  // MM/YYYY or MM.YYYY
+  const slash = /^(\d{1,2})[/.](\d{4})$/.exec(v)
+  if (slash) return `${slash[2]}-${String(slash[1]).padStart(2, '0')}`
+
+  // Bare year → January of that year
+  const year = /^(\d{4})$/.exec(v)
+  if (year) return `${year[1]}-01`
+
+  // "Mart 2024", "March 2024", "2024 Mart", "Mar. 2024" …
+  const lower = v.toLowerCase()
+  for (const [name, num] of Object.entries(MONTH_MAP)) {
+    const m1 = new RegExp(`\\b${name}\\.?\\s+(\\d{4})`).exec(lower)
+    if (m1) return `${m1[1]}-${num}`
+    const m2 = new RegExp(`(\\d{4})\\s+${name}`).exec(lower)
+    if (m2) return `${m2[1]}-${num}`
+  }
+
+  return null
+}
+
 export function formatRelative(timestamp: number | string | null): string {
   if (!timestamp) return '—'
   const date = typeof timestamp === 'string' ? new Date(timestamp).getTime() : timestamp

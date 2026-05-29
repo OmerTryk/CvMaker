@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
-import { HelpCircle, Sparkles, Sun, Moon } from 'lucide-react'
+import { HelpCircle, Sparkles, Sun, Moon, Menu, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { META_LABEL } from '@/hooks/useKeyboardShortcuts'
 import { useAIStore } from '@/store'
@@ -8,6 +9,7 @@ const navItems = [
   { to: '/dashboard', label: 'CV\'lerim', end: true },
   { to: '/editor',    label: 'Editör' },
   { to: '/preview',   label: 'Önizleme' },
+  { to: '/jobs',      label: 'Şirketler' },
 ]
 
 interface HeaderProps {
@@ -19,17 +21,18 @@ interface HeaderProps {
 
 export function Header({ onHelpOpen, onAIOpen, dark, onToggleDark }: HeaderProps) {
   const apiKey = useAIStore((s) => s.apiKey)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   return (
     <header className="relative z-20 border-b border-line bg-paper/80 backdrop-blur-sm">
-      <div className="container-prose flex items-center justify-between py-5">
+      <div className="container-prose flex items-center justify-between py-4 md:py-5">
 
         {/* Logo */}
         <Link to="/" className="group flex items-center" aria-label="CTRLCV anasayfa">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 250 44"
-            className="h-7 w-auto overflow-visible text-ink"
+            className="h-6 w-auto overflow-visible text-ink md:h-7"
             overflow="visible"
             aria-label="CTRLCV"
           >
@@ -43,8 +46,8 @@ export function Header({ onHelpOpen, onAIOpen, dark, onToggleDark }: HeaderProps
         </Link>
 
         <div className="flex items-center gap-1 sm:gap-2">
-          {/* Nav */}
-          <nav className="flex items-center gap-1">
+          {/* Desktop Nav — hidden on mobile */}
+          <nav className="hidden items-center gap-1 md:flex">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -98,17 +101,66 @@ export function Header({ onHelpOpen, onAIOpen, dark, onToggleDark }: HeaderProps
             }
           </button>
 
-          {/* Help button */}
+          {/* Help button — hidden on mobile */}
           <button
             onClick={onHelpOpen}
             title={`Yardım (${META_LABEL}+/)`}
             aria-label="Klavye kısayollarını göster"
-            className="flex h-8 w-8 items-center justify-center text-ink/40 transition-colors hover:bg-paper-warm hover:text-accent"
+            className="hidden h-8 w-8 items-center justify-center text-ink/40 transition-colors hover:bg-paper-warm hover:text-accent md:flex"
           >
             <HelpCircle size={16} strokeWidth={1.5} />
           </button>
+
+          {/* Hamburger — mobile only */}
+          <button
+            type="button"
+            onClick={() => setMenuOpen((v) => !v)}
+            aria-label={menuOpen ? 'Menüyü kapat' : 'Menüyü aç'}
+            className="flex h-8 w-8 items-center justify-center text-ink/60 transition-colors hover:bg-paper-warm hover:text-ink md:hidden"
+          >
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
       </div>
+
+      {/* Mobile dropdown menu */}
+      {menuOpen && (
+        <div className="border-t border-line bg-paper md:hidden">
+          <nav className="container-prose flex flex-col py-2">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                onClick={() => setMenuOpen(false)}
+                className={({ isActive }) =>
+                  cn(
+                    'flex items-center gap-2 px-1 py-3 font-sans text-sm tracking-wide transition-colors',
+                    'border-b border-line/50 last:border-0',
+                    isActive ? 'text-ink font-medium' : 'text-ink/60',
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    {isActive && <span className="h-1 w-1 rounded-full bg-accent" />}
+                    {item.label}
+                  </>
+                )}
+              </NavLink>
+            ))}
+            {/* Help in mobile menu */}
+            <button
+              type="button"
+              onClick={() => { setMenuOpen(false); onHelpOpen() }}
+              className="flex items-center gap-2 px-1 py-3 text-left font-sans text-sm tracking-wide text-ink/60 transition-colors"
+            >
+              <HelpCircle size={14} className="text-ink/30" />
+              Yardım &amp; Kısayollar
+            </button>
+          </nav>
+        </div>
+      )}
     </header>
   )
 }

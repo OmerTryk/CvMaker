@@ -4,6 +4,7 @@ import { Header } from './Header'
 import { Footer } from './Footer'
 import { HelpOverlay } from '@/features/help'
 import { AIPanel } from '@/features/ai'
+import { FloatingChat } from '@/features/jobs/FloatingChat'
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts'
 import { useAIStore } from '@/store'
 import { useDarkMode } from '@/hooks/useDarkMode'
@@ -53,6 +54,7 @@ export function Layout() {
 
       <HelpOverlay open={helpOpen} onClose={closeHelp} />
       <AIPanel />
+      <FloatingChat />
       <ScrollRestoration />
     </div>
   )

@@ -26,11 +26,11 @@ export function HomePage() {
   return (
     <div className="relative overflow-hidden">
       {/* HERO */}
-      <section className="container-prose relative pt-20 pb-32 md:pt-32 md:pb-40">
+      <section className="container-prose relative pt-12 pb-20 md:pt-32 md:pb-40">
         <div className="grid gap-12 md:grid-cols-12">
           <div className="md:col-span-8">
             <h1
-              className="font-display text-5xl font-light leading-[0.95] tracking-tightest text-ink opacity-0 animate-fade-up md:text-7xl lg:text-8xl"
+              className="font-display text-4xl font-light leading-[0.95] tracking-tightest text-ink opacity-0 animate-fade-up sm:text-5xl md:text-7xl lg:text-8xl"
               style={{ animationDelay: '120ms' }}
             >
               Profesyonel
@@ -89,8 +89,8 @@ export function HomePage() {
 
       {/* FEATURES */}
       <section className="container-prose py-24 md:py-32">
-        <div className="mb-16 flex items-baseline justify-between">
-          <h2 className="font-display text-3xl font-light tracking-tight text-ink md:text-4xl">
+        <div className="mb-10 flex flex-wrap items-baseline justify-between gap-3 md:mb-16">
+          <h2 className="font-display text-2xl font-light tracking-tight text-ink md:text-4xl">
             Ne sunuyor?
           </h2>
           <span className="font-mono text-xs uppercase tracking-widest text-ink/40">
@@ -98,11 +98,11 @@ export function HomePage() {
           </span>
         </div>
 
-        <div className="grid gap-px bg-line md:grid-cols-3">
+        <div className="grid gap-px bg-line sm:grid-cols-3">
           {features.map((f, i) => (
             <article
               key={f.title}
-              className="group relative bg-paper p-8 transition-colors duration-300 hover:bg-paper-warm"
+              className="group relative bg-paper p-5 transition-colors duration-300 hover:bg-paper-warm sm:p-8"
             >
               <span className="absolute right-6 top-6 font-mono text-[10px] uppercase tracking-widest text-ink/30">
                 0{i + 1}
