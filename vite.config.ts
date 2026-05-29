@@ -23,17 +23,8 @@ export default defineConfig({
           // Core React runtime
           'vendor-react': ['react', 'react-dom', 'react-router-dom'],
 
-          // State & validation (stores must be in ONE chunk — never split)
+          // State & validation
           'vendor-state': ['zustand', 'zod'],
-
-          // App stores — explicitly colocated to prevent duplication
-          'app-store': [
-            './src/store/cv-store.ts',
-            './src/store/ai-store.ts',
-            './src/store/cv-list-store.ts',
-            './src/store/job-match-store.ts',
-            './src/store/index.ts',
-          ],
 
           // UI libraries
           'vendor-ui': [
