@@ -15,6 +15,7 @@ import { useJobMatchStore } from '@/store/job-match-store'
 import { matchCVToJob } from '@/lib/job-match'
 import { buildJobMatchPrompt } from '@/lib/prompts'
 import { streamAI } from '@/lib/ai-client'
+import { InlineKeySetup } from '@/features/ai/InlineKeySetup'
 import { cn } from '@/lib/utils'
 
 // ─────────────────────────────────────────────────────────────
@@ -319,35 +320,37 @@ export function JobMatchWidget() {
       )}
 
       {/* Actions */}
-      <div className="flex items-center gap-2 border-t border-line px-4 py-3">
+      <div className="border-t border-line">
         {apiKey ? (
-          <button
-            type="button"
-            onClick={handleAIAnalyze}
-            disabled={aiLoading}
-            className="inline-flex items-center gap-2 bg-accent px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:bg-ink disabled:opacity-50"
-          >
-            {aiLoading
-              ? <Loader2 size={11} className="animate-spin" />
-              : <Sparkles size={11} />
-            }
-            {aiLoading ? 'Analiz ediliyor...' : 'AI Derin Analiz'}
-          </button>
-        ) : (
-          <p className="font-mono text-[9px] uppercase tracking-wide text-ink/40">
-            AI analizi için API anahtarı gerekli →{' '}
-            <span className="text-accent">AI panelinden ekle</span>
-          </p>
-        )}
+          <div className="flex items-center gap-2 px-4 py-3">
+            <button
+              type="button"
+              onClick={handleAIAnalyze}
+              disabled={aiLoading}
+              className="inline-flex items-center gap-2 bg-accent px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:bg-ink disabled:opacity-50"
+            >
+              {aiLoading
+                ? <Loader2 size={11} className="animate-spin" />
+                : <Sparkles size={11} />
+              }
+              {aiLoading ? 'Analiz ediliyor...' : 'AI Derin Analiz'}
+            </button>
 
-        <button
-          type="button"
-          onClick={() => { clear(); setInputMode(true) }}
-          className="ml-auto flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-ink/30 hover:text-ink"
-        >
-          <RefreshCw size={11} />
-          Sıfırla
-        </button>
+            <button
+              type="button"
+              onClick={() => { clear(); setInputMode(true) }}
+              className="ml-auto flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-widest text-ink/30 hover:text-ink"
+            >
+              <RefreshCw size={11} />
+              Sıfırla
+            </button>
+          </div>
+        ) : (
+          <InlineKeySetup
+            title="AI derin analiz için API anahtarı gir"
+            onSaved={() => {}}
+          />
+        )}
       </div>
 
       {/* AI Analysis Panel */}

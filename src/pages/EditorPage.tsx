@@ -9,9 +9,12 @@ import {
   AlertCircle,
   Edit3,
   Eye,
+  ExternalLink,
   FileUp,
 } from 'lucide-react'
 import { useCVStore } from '@/store'
+import { useAIStore, PROVIDERS } from '@/store/ai-store'
+import { isValidKeyFormat } from '@/lib/ai-client'
 import { EditorShell } from '@/features/editor'
 import { WelcomeBanner } from '@/features/editor/WelcomeBanner'
 import { ImportPDFModal } from '@/features/import'
@@ -44,6 +47,16 @@ export function EditorPage() {
   const resetCV = useCVStore((s) => s.resetCV)
   const exportJSON = useCVStore((s) => s.exportJSON)
   const importJSON = useCVStore((s) => s.importJSON)
+
+  const { apiKey, provider, setApiKey } = useAIStore()
+  const [keyDraft, setKeyDraft] = useState('')
+  const cfg = PROVIDERS[provider]
+  const keyValid = isValidKeyFormat(keyDraft, cfg.keyPrefix)
+  const handleSaveKey = useCallback(() => {
+    if (!keyValid) return
+    setApiKey(keyDraft.trim())
+    setKeyDraft('')
+  }, [keyDraft, keyValid, setApiKey])
 
   const isEmpty = useIsCVEmpty()
   const [mobileView, setMobileView] = useState<MobileView>('editor')
@@ -250,6 +263,50 @@ export function EditorPage() {
           </ToolbarButton>
         </div>
       </div>
+
+      {/* AI KEY BANNER — only when no key */}
+      {!apiKey && (
+        <div className="mb-6 border border-line">
+          <div className="flex items-center gap-2 border-b border-line bg-paper-warm px-4 py-2">
+            <Sparkles size={12} className="shrink-0 text-accent" strokeWidth={1.5} />
+            <span className="font-mono text-[10px] uppercase tracking-widest text-ink/60">
+              AI özelliklerini aktifleştir
+            </span>
+            <a
+              href={cfg.consoleUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="ml-auto inline-flex items-center gap-1 font-mono text-[9px] uppercase tracking-widest text-ink/35 transition-colors hover:text-accent"
+            >
+              Ücretsiz anahtar al
+              <ExternalLink size={9} />
+            </a>
+          </div>
+          <div className="flex items-center gap-3 bg-paper px-4 py-3">
+            <input
+              type="password"
+              value={keyDraft}
+              onChange={(e) => setKeyDraft(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSaveKey()}
+              placeholder={cfg.keyPlaceholder}
+              autoComplete="off"
+              spellCheck={false}
+              className="flex-1 border-b border-line bg-transparent py-1.5 font-mono text-xs text-ink placeholder-ink/25 outline-none transition-colors focus:border-accent"
+            />
+            <button
+              type="button"
+              onClick={handleSaveKey}
+              disabled={!keyValid}
+              className="shrink-0 bg-ink px-4 py-1.5 font-mono text-[9px] uppercase tracking-widest text-paper transition-colors hover:bg-accent disabled:opacity-40"
+            >
+              Kaydet
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* SCORES */}
+      <CVScoreWidget />
 
       {/* JOB MATCH */}
       <JobMatchWidget />

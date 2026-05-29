@@ -1,19 +1,21 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Edit3 } from 'lucide-react'
+import { ArrowLeft, Edit3, FileDown, Loader2 } from 'lucide-react'
 import { useCVStore } from '@/store'
 import { TemplateRenderer } from '@/templates'
 import { TEMPLATE_LIST, A4 } from '@/templates/shared/tokens'
-import { ExportButton } from '@/features/export'
 import { Paginator } from '@/components/ui'
 import { useSmartPageBreaks } from '@/hooks/useSmartPageBreaks'
+import { useKeyboardShortcuts, META_LABEL } from '@/hooks/useKeyboardShortcuts'
+import { usePDFExport } from '@/features/export/usePDFExport'
+import { PrintableCV } from '@/features/export/PrintableCV'
 import { cn } from '@/lib/utils'
 
 const GRAD_BOT = 40
 
 export function PreviewPage() {
-  const cv            = useCVStore((s) => s.cv)
-  const template      = useCVStore((s) => s.cv.settings.template)
+  const cv             = useCVStore((s) => s.cv)
+  const template       = useCVStore((s) => s.cv.settings.template)
   const updateSettings = useCVStore((s) => s.updateSettings)
 
   const [currentPage, setCurrentPage] = useState(0)
@@ -37,6 +39,16 @@ export function PreviewPage() {
 
   const { contentRef, pageOffsets, pageCount } = useSmartPageBreaks(a4Scale)
 
+  // ── PDF export ──────────────────────────────────────────────
+  const { ref: printRef, print, isPrinting } = usePDFExport()
+
+  // Intercept browser Ctrl+P — print CV instead of full page
+  useKeyboardShortcuts([{
+    key: 'p',
+    meta: true,
+    handler: (e) => { e.preventDefault(); print() },
+  }])
+
   useEffect(() => {
     setCurrentPage((p) => Math.min(p, Math.max(0, pageCount - 1)))
   }, [pageCount])
@@ -55,7 +67,6 @@ export function PreviewPage() {
   }
 
   const adjustedOffset = (page: number) => pageOffsets[page] ?? 0
-
   const activeTpl = TEMPLATE_LIST.find((t) => t.key === template)
 
   return (
@@ -77,6 +88,7 @@ export function PreviewPage() {
             {cv.title || 'CV Önizleme'}
           </h1>
         </div>
+
         <div className="flex flex-wrap items-center gap-2">
           <Link
             to="/editor"
@@ -84,23 +96,34 @@ export function PreviewPage() {
           >
             <Edit3 size={12} /> Düzenle
           </Link>
-          <ExportButton variant="primary" label="PDF İndir" />
+
+          <button
+            type="button"
+            onClick={print}
+            disabled={isPrinting}
+            title={`PDF İndir (${META_LABEL}+P)`}
+            className="inline-flex items-center gap-2 bg-ink px-5 py-2 font-mono text-xs uppercase tracking-widest text-paper transition-colors hover:bg-accent disabled:opacity-60"
+          >
+            {isPrinting
+              ? <Loader2 size={14} className="animate-spin" />
+              : <FileDown size={14} />}
+            {isPrinting ? 'Hazırlanıyor...' : `PDF İndir (${META_LABEL}+P)`}
+          </button>
         </div>
       </div>
 
-      {/* Template picker — always open */}
+      {/* Hidden print source */}
+      <div className="print-source" aria-hidden="true">
+        <PrintableCV ref={printRef} cv={cv} />
+      </div>
+
+      {/* ── Template picker — always open ── */}
       <div className="mb-8 border border-line">
         <div className="border-b border-line px-5 py-3">
           <div className="flex items-center gap-4">
-            <span className="font-mono text-[10px] uppercase tracking-widest text-ink/50">
-              Şablon
-            </span>
-            <span className="font-display text-lg font-light text-ink">
-              {activeTpl?.name ?? template}
-            </span>
-            <span className="font-mono text-[10px] uppercase tracking-widest text-ink/40">
-              {activeTpl?.description}
-            </span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-ink/50">Şablon</span>
+            <span className="font-display text-lg font-light text-ink">{activeTpl?.name ?? template}</span>
+            <span className="font-mono text-[10px] uppercase tracking-widest text-ink/40">{activeTpl?.description}</span>
           </div>
         </div>
 
@@ -109,14 +132,8 @@ export function PreviewPage() {
           {TEMPLATE_LIST.slice(0, 7).map((tpl) => {
             const active = template === tpl.key
             return (
-              <button
-                key={tpl.key}
-                type="button"
-                onClick={() => updateSettings({ template: tpl.key })}
-                className={cn(
-                  'flex flex-col items-start gap-0.5 bg-paper px-4 py-3 text-left transition-colors hover:bg-paper-warm',
-                  active && 'bg-ink hover:bg-ink',
-                )}
+              <button key={tpl.key} type="button" onClick={() => updateSettings({ template: tpl.key })}
+                className={cn('flex flex-col items-start gap-0.5 bg-paper px-4 py-3 text-left transition-colors hover:bg-paper-warm', active && 'bg-ink hover:bg-ink')}
               >
                 <span className={cn('font-display text-sm font-medium', active ? 'text-paper' : 'text-ink')}>
                   {tpl.name}
@@ -134,21 +151,11 @@ export function PreviewPage() {
           {TEMPLATE_LIST.slice(7).map((tpl) => {
             const active = template === tpl.key
             return (
-              <button
-                key={tpl.key}
-                type="button"
-                onClick={() => updateSettings({ template: tpl.key })}
-                className={cn(
-                  'flex items-center gap-4 bg-paper px-5 py-3 text-left transition-colors hover:bg-paper-warm',
-                  active && 'bg-ink hover:bg-ink',
-                )}
+              <button key={tpl.key} type="button" onClick={() => updateSettings({ template: tpl.key })}
+                className={cn('flex items-center gap-4 bg-paper px-5 py-3 text-left transition-colors hover:bg-paper-warm', active && 'bg-ink hover:bg-ink')}
               >
-                <span className={cn('font-display text-base font-medium', active ? 'text-paper' : 'text-ink')}>
-                  {tpl.name}
-                </span>
-                <span className={cn('font-mono text-[9px] uppercase tracking-wide', active ? 'text-paper/60' : 'text-ink/40')}>
-                  {tpl.description}
-                </span>
+                <span className={cn('font-display text-base font-medium', active ? 'text-paper' : 'text-ink')}>{tpl.name}</span>
+                <span className={cn('font-mono text-[9px] uppercase tracking-wide', active ? 'text-paper/60' : 'text-ink/40')}>{tpl.description}</span>
               </button>
             )
           })}
@@ -158,13 +165,17 @@ export function PreviewPage() {
       {/* ── Paginator + A4 viewport ── */}
       <div className="flex flex-col items-center gap-5">
         {pageCount > 1 && (
-          <Paginator
-            current={currentPage} total={pageCount}
-            onPrev={() => navigate(-1)} onNext={() => navigate(1)}
-            size="md"
-          />
+          <Paginator current={currentPage} total={pageCount}
+            onPrev={() => navigate(-1)} onNext={() => navigate(1)} size="md" />
         )}
 
+        {/* A4 clip viewport */}
+        <div className="overflow-x-auto">
+          <div style={{
+            width: `${A4.widthPX}px`, height: `${A4.heightPX}px`,
+            overflow: 'hidden', position: 'relative', background: 'white',
+            boxShadow: '0 4px 24px rgba(0,0,0,.10), 0 1px 4px rgba(0,0,0,.06)',
+          }}>
         {/* A4 clip viewport — scales down on small screens */}
         <div
           style={{
@@ -189,26 +200,20 @@ export function PreviewPage() {
             }}
           >
             {/* Hidden measurement div */}
-            <div
-              ref={contentRef}
-              style={{
-                position: 'absolute', top: 0, left: 0,
-                width: `${A4.widthPX}px`, minHeight: `${A4.heightPX}px`,
-                visibility: 'hidden', pointerEvents: 'none', zIndex: 0,
-              }}
-            >
+            <div ref={contentRef} style={{
+              position: 'absolute', top: 0, left: 0,
+              width: `${A4.widthPX}px`, minHeight: `${A4.heightPX}px`,
+              visibility: 'hidden', pointerEvents: 'none', zIndex: 0,
+            }}>
               <TemplateRenderer cv={cv} />
             </div>
 
             {/* Exiting page */}
             {exitPage !== null && (
-              <div
-                key={`exit-${exitPage}`}
-                style={{
-                  position: 'absolute', inset: 0, zIndex: 1,
-                  animation: `${dir === 'fwd' ? 'ppSlideOutL' : 'ppSlideOutR'} .32s cubic-bezier(.4,0,1,1) forwards`,
-                }}
-              >
+              <div key={`exit-${exitPage}`} style={{
+                position: 'absolute', inset: 0, zIndex: 1,
+                animation: `${dir === 'fwd' ? 'ppSlideOutL' : 'ppSlideOutR'} .32s cubic-bezier(.4,0,1,1) forwards`,
+              }}>
                 <div style={{ position: 'absolute', top: `-${adjustedOffset(exitPage)}px`, left: 0, width: A4.widthPX }}>
                   <TemplateRenderer cv={cv} />
                 </div>
@@ -216,20 +221,18 @@ export function PreviewPage() {
             )}
 
             {/* Current / entering page */}
-            <div
-              key={`cur-${currentPage}`}
-              style={{
-                position: 'absolute', inset: 0, zIndex: 2,
-                animation: animating
-                  ? `${dir === 'fwd' ? 'ppSlideInR' : 'ppSlideInL'} .32s cubic-bezier(0,0,.2,1) forwards`
-                  : 'none',
-              }}
-            >
+            <div key={`cur-${currentPage}`} style={{
+              position: 'absolute', inset: 0, zIndex: 2,
+              animation: animating
+                ? `${dir === 'fwd' ? 'ppSlideInR' : 'ppSlideInL'} .32s cubic-bezier(0,0,.2,1) forwards`
+                : 'none',
+            }}>
               <div style={{ position: 'absolute', top: `-${adjustedOffset(currentPage)}px`, left: 0, width: A4.widthPX }}>
                 <TemplateRenderer cv={cv} />
               </div>
             </div>
 
+            {/* Bottom fade */}
             {/* Bottom gradient only */}
             <div style={{
               position: 'absolute', bottom: 0, left: 0, right: 0,
@@ -241,11 +244,8 @@ export function PreviewPage() {
         </div>
 
         {pageCount > 1 && (
-          <Paginator
-            current={currentPage} total={pageCount}
-            onPrev={() => navigate(-1)} onNext={() => navigate(1)}
-            size="md"
-          />
+          <Paginator current={currentPage} total={pageCount}
+            onPrev={() => navigate(-1)} onNext={() => navigate(1)} size="md" />
         )}
       </div>
 
