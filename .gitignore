@@ -45,3 +45,9 @@ Thumbs.db
 .eslintcache
 *.tsbuildinfo
 coverage
+
+# Claude Code — local çalışma dosyaları
+.claude/
+_scan/
+
+

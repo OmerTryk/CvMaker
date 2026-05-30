@@ -1,11 +1,8 @@
 /**
- * ai-client.ts — Multi-provider AI streaming client.
+ * ai-client.ts — Gemini AI streaming client.
  *
- * Gemini → uses native streamGenerateContent API (most reliable)
- * Groq   → uses OpenAI-compatible chat completions API
- *
- * Both produce the same onChunk/onDone/onError interface so the
- * rest of the app doesn't need to know which provider is active.
+ * Uses native streamGenerateContent API with SSE streaming.
+ * Supports Google Search grounding for job search features.
  */
 
 import type { AIProvider } from '@/store/ai-store'
@@ -43,8 +40,8 @@ export interface ChatMessage {
 
 export interface StreamOptions {
   provider: AIProvider
-  /** For Groq: full base URL. For Gemini: ignored (native URL built internally). */
-  baseUrl: string
+  /** Gemini base URL — reserved for future provider support. */
+  baseUrl?: string
   apiKey: string
   model: string
   system: string
@@ -67,10 +64,7 @@ export interface StreamOptions {
 // ─────────────────────────────────────────────────────────────
 
 export async function streamAI(opts: StreamOptions): Promise<void> {
-  if (opts.provider === 'gemini') {
-    return streamGemini(opts)
-  }
-  return streamOpenAI(opts)
+  return streamGemini(opts)
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -339,74 +333,6 @@ function extractGroundedResult(data: unknown): GenerateResult {
     .map((s) => ({ text: s.segment!.text!, chunkIndices: s.groundingChunkIndices ?? [] }))
 
   return { text, grounding: { sources, supports } }
-}
-
-// ─────────────────────────────────────────────────────────────
-// OpenAI-compatible — for Groq and others
-// ─────────────────────────────────────────────────────────────
-
-async function streamOpenAI({
-  baseUrl,
-  apiKey,
-  model,
-  system,
-  prompt,
-  maxTokens = 700,
-  history,
-  onChunk,
-  onDone,
-  onError,
-  signal,
-}: StreamOptions): Promise<void> {
-  let response: Response
-  try {
-    response = await fetch(`${baseUrl}/chat/completions`, {
-      method: 'POST',
-      signal,
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        max_tokens: maxTokens,
-        stream: true,
-        messages: [
-          { role: 'system', content: system },
-          ...(history?.map((m) => ({
-            role: m.role === 'model' ? 'assistant' : 'user',
-            content: m.text,
-          })) ?? []),
-          { role: 'user', content: prompt },
-        ],
-      }),
-    })
-  } catch (err) {
-    if ((err as Error).name === 'AbortError') return
-    onError({ type: 'network', message: 'Ağ bağlantısı kurulamadı.' })
-    return
-  }
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}))
-    const msg = extractErrorMessage(body)
-    if (response.status === 401 || response.status === 403) {
-      onError({ type: 'auth', message: 'API anahtarı geçersiz.' })
-    } else if (response.status === 429) {
-      onError({ type: 'rate_limit', message: 'Hız limiti aşıldı. Biraz bekle.' })
-    } else {
-      onError({ type: 'unknown', message: msg })
-    }
-    return
-  }
-
-  // Parse OpenAI SSE — delta format
-  // Each event: data: {"choices":[{"delta":{"content":"chunk"}}]}
-  await parseSSE(response, onChunk, onDone, onError, (parsed) => {
-    return (parsed as {
-      choices?: { delta?: { content?: string } }[]
-    })?.choices?.[0]?.delta?.content ?? null
-  })
 }
 
 // ─────────────────────────────────────────────────────────────

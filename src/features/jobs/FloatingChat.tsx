@@ -20,7 +20,6 @@ export function FloatingChat() {
   const { sendChatMessage } = useJobSearch()
   const { messages, chatLoading, chatError, clearChat } = useJobSearchStore()
   const apiKey = useAIStore((s) => s.apiKey)
-  const provider = useAIStore((s) => s.provider)
   const openAIPanel = useAIStore((s) => s.openPanel)
   const bottomRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -73,7 +72,7 @@ export function FloatingChat() {
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold text-paper">Kariyer Asistanı</p>
             <p className="font-mono text-[9px] uppercase tracking-widest text-paper/40">
-              {provider === 'gemini' ? 'Google arama · aktif' : apiKey ? 'Groq · aktif' : 'API anahtarı gerekli'}
+              {apiKey ? 'Google arama · aktif' : 'API anahtarı gerekli'}
             </p>
           </div>
           <div className="flex items-center gap-1">

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Briefcase, Search, Loader2, AlertCircle, RefreshCw, Globe, Sparkles, MapPin, FileText, ChevronDown, Info, X } from 'lucide-react'
+import { Briefcase, Search, Loader2, AlertCircle, RefreshCw, Sparkles, MapPin, FileText, ChevronDown, Info, X } from 'lucide-react'
 import { useJobSearch } from './useJobSearch'
 import { JobCard } from './JobCard'
 import { useJobSearchStore } from '@/store/job-search-store'
@@ -12,7 +12,6 @@ export function JobFinderPanel() {
     selectedCVId, updateFilters, clearListings, setSelectedCVId,
   } = useJobSearchStore()
   const apiKey = useAIStore((s) => s.apiKey)
-  const provider = useAIStore((s) => s.provider)
   const openAIPanel = useAIStore((s) => s.openPanel)
 
   const hasCV = !!(cv.personal.jobTitle || cv.skills.length)
@@ -45,30 +44,6 @@ export function JobFinderPanel() {
           className="inline-flex items-center gap-2 rounded-lg bg-ink px-4 py-2 text-sm font-medium text-paper transition-colors hover:bg-accent"
         >
           <Sparkles size={14} /> AI Panelini Aç
-        </button>
-      </div>
-    )
-  }
-
-  /* ── Groq — no grounding ────────────────────────────────────── */
-  if (provider === 'groq') {
-    return (
-      <div className="flex flex-col items-center gap-4 rounded-xl border border-line bg-paper px-6 py-16 text-center">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-paper-warm">
-          <Globe size={20} className="text-ink/40" />
-        </div>
-        <div className="max-w-sm">
-          <h3 className="font-sans text-base font-semibold text-ink">Gemini Gerekli</h3>
-          <p className="mt-1 text-sm text-ink/50">
-            İlan arama Google arama entegrasyonu gerektirdiğinden yalnızca Gemini ile çalışır.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={openAIPanel}
-          className="inline-flex items-center gap-2 rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink/70 transition-colors hover:border-ink hover:text-ink"
-        >
-          <Sparkles size={14} /> Gemini'ye Geç
         </button>
       </div>
     )

@@ -18,7 +18,6 @@ export function JobChat() {
   const { sendChatMessage } = useJobSearch()
   const { messages, chatLoading, chatError, clearChat } = useJobSearchStore()
   const apiKey = useAIStore((s) => s.apiKey)
-  const provider = useAIStore((s) => s.provider)
   const openAIPanel = useAIStore((s) => s.openPanel)
   const cv = useCVStore((s) => s.cv)
   const [input, setInput] = useState('')
@@ -137,7 +136,7 @@ export function JobChat() {
           <div className="flex-1">
             <p className="font-sans text-sm font-semibold text-ink">Kariyer Asistanı</p>
             <p className="font-mono text-[9px] uppercase tracking-widest text-ink/30">
-              {provider === 'gemini' ? 'Google arama entegrasyonuyla' : 'Groq'}
+              Google arama entegrasyonuyla
             </p>
           </div>
           {messages.length > 0 && (
