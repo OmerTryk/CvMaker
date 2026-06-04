@@ -211,7 +211,8 @@ export function EditorPage() {
 
         <div className="mx-2 hidden h-5 w-px bg-line lg:block" />
 
-        <div className="hidden lg:block">
+        <div className="hidden items-center gap-2 lg:flex">
+          <WordExportButton variant="subtle" label="Word" />
           <ExportButtonWithRef ref={exportBtnRef} />
         </div>
 
@@ -274,6 +275,7 @@ export function EditorPage() {
 
       {/* Mobile bottom actions */}
       <div className="mt-10 flex flex-wrap items-center justify-center gap-3 lg:hidden">
+        <WordExportButton variant="primary" label="Word İndir" />
         <ExportButtonWithRef ref={exportBtnRef} />
         <ToolbarButton
           onClick={handleReset}
@@ -315,7 +317,7 @@ export function EditorPage() {
 // ─────────────────────────────────────────────────────────────
 
 import { forwardRef, useImperativeHandle } from 'react'
-import { usePDFExport } from '@/features/export'
+import { usePDFExport, WordExportButton } from '@/features/export'
 import { PrintableCV } from '@/features/export/PrintableCV'
 import { FileDown, Loader2 } from 'lucide-react'
 

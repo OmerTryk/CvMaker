@@ -14,6 +14,7 @@ export function ImportPDFModal({ onClose, onSuccess }: ImportPDFModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { phase, error, progress, result, importFromPDF, cancel, reset } = useCVImport()
   const loadCV = useCVStore((s) => s.loadCV)
+  const currentId = useCVStore((s) => s.cv.id)
   const apiKey = useAIStore((s) => s.apiKey)
   const openAIPanel = useAIStore((s) => s.openPanel)
 
@@ -56,10 +57,12 @@ export function ImportPDFModal({ onClose, onSuccess }: ImportPDFModalProps) {
 
   const handleConfirm = useCallback(() => {
     if (!result) return
-    loadCV(result.cv)
+    // Replace the current CV in place (keep its id) so it updates the
+    // existing cv-list entry instead of orphaning it.
+    loadCV({ ...result.cv, id: currentId })
     onSuccess('CV başarıyla yüklendi')
     onClose()
-  }, [result, loadCV, onSuccess, onClose])
+  }, [result, loadCV, currentId, onSuccess, onClose])
 
   const cv = result?.cv
 

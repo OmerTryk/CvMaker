@@ -1,17 +1,18 @@
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
-import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, PROFICIENCY_LABEL, sectionHasContent } from './shared/helpers'
+import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, proficiencyLabel, SECTION_TITLES, sectionHasContent } from './shared/helpers'
 
 export function ExecutiveTemplate({ cv }: { cv: CVDocument }) {
   const c = COLOR_THEMES[cv.settings.colorTheme]
   const f = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
   const sideKeys: SectionKey[] = ['skills', 'languages', 'certificates']
   const mainKeys = visible.filter((k) => !sideKeys.includes(k))
   const sideVisible = visible.filter((k) => sideKeys.includes(k))
 
   return (
-    <article style={{ fontFamily: f.body, color: c.text, background: c.surface, height: '100%' }}>
+    <article lang={lang} style={{ fontFamily: f.body, color: c.text, background: c.surface, height: '100%' }}>
       {/* Dark header band */}
       <header style={{ background: c.primary, color: c.primaryFg, padding: '28px 36px 22px', position: 'relative' }}>
         {cv.personal.photoUrl && (
@@ -41,13 +42,13 @@ export function ExecutiveTemplate({ cv }: { cv: CVDocument }) {
         {/* Main */}
         <div style={{ paddingRight: '28px', borderRight: `1px solid ${c.divider}` }}>
           {mainKeys.map((key) => !sectionHasContent(cv, key) ? null : (
-            <ExecSection key={key} sectionKey={key} cv={cv} c={c} f={f} />
+            <ExecSection key={key} sectionKey={key} cv={cv} c={c} f={f} lang={lang} />
           ))}
         </div>
         {/* Sidebar */}
         <div style={{ paddingLeft: '24px' }}>
           {sideVisible.map((key) => !sectionHasContent(cv, key) ? null : (
-            <ExecSideSection key={key} sectionKey={key} cv={cv} c={c} f={f} />
+            <ExecSideSection key={key} sectionKey={key} cv={cv} c={c} f={f} lang={lang} />
           ))}
         </div>
       </div>
@@ -63,21 +64,22 @@ function ExecSectionTitle({ children, c, f }: { children: React.ReactNode; c: an
   )
 }
 
-function ExecSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any }) {
+function ExecSection({ sectionKey, cv, c, f, lang }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any; lang: CVLanguage }) {
+  const t = (key: SectionKey, tr: string) => (lang === 'en' ? SECTION_TITLES.en[key] : tr)
   if (sectionKey === 'summary') return (
     <div className="cv-item">
-      <ExecSectionTitle c={c} f={f}>Özet</ExecSectionTitle>
+      <ExecSectionTitle c={c} f={f}>{t('summary', 'Özet')}</ExecSectionTitle>
       <p style={{ fontSize: '12px', lineHeight: 1.7, color: c.text }}>{cv.summary.content}</p>
     </div>
   )
   if (sectionKey === 'experience') return (
     <div>
-      <ExecSectionTitle c={c} f={f}>Deneyim</ExecSectionTitle>
+      <ExecSectionTitle c={c} f={f}>{t('experience', 'Deneyim')}</ExecSectionTitle>
       {cv.experience.map((e) => (
         <div key={e.id} className="cv-item" style={{ marginBottom: '12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>{e.position}</span>
-            <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</span>
+            <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</span>
           </div>
           <div style={{ fontSize: '11px', color: c.primary, fontStyle: 'italic', marginBottom: '3px' }}>{joinParts([e.company, e.location])}</div>
           {e.description && <p style={{ fontSize: '11.5px', lineHeight: 1.6, color: c.text, margin: '0 0 3px' }}>{e.description}</p>}
@@ -88,12 +90,12 @@ function ExecSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVD
   )
   if (sectionKey === 'education') return (
     <div>
-      <ExecSectionTitle c={c} f={f}>Eğitim</ExecSectionTitle>
+      <ExecSectionTitle c={c} f={f}>{t('education', 'Eğitim')}</ExecSectionTitle>
       {cv.education.map((e) => (
         <div key={e.id} className="cv-item" style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>{joinParts([e.degree, e.field]) || e.institution}</span>
-            <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</span>
+            <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</span>
           </div>
           <div style={{ fontSize: '11px', color: c.primary, fontStyle: 'italic' }}>{joinParts([e.institution, e.location])}</div>
         </div>
@@ -102,7 +104,7 @@ function ExecSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVD
   )
   if (sectionKey === 'projects') return (
     <div>
-      <ExecSectionTitle c={c} f={f}>Projeler</ExecSectionTitle>
+      <ExecSectionTitle c={c} f={f}>{t('projects', 'Projeler')}</ExecSectionTitle>
       {cv.projects.map((p) => (
         <div key={p.id} className="cv-item" style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
@@ -117,7 +119,7 @@ function ExecSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVD
   )
   if (sectionKey === 'references') return (
     <div>
-      <ExecSectionTitle c={c} f={f}>Referanslar</ExecSectionTitle>
+      <ExecSectionTitle c={c} f={f}>{t('references', 'Referanslar')}</ExecSectionTitle>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
         {cv.references.map((r) => (
           <div key={r.id} style={{ fontSize: '11.5px' }}>
@@ -132,8 +134,8 @@ function ExecSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVD
   return null
 }
 
-function ExecSideSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any }) {
-  const title = ({ skills: 'Yetenekler', languages: 'Diller', certificates: 'Sertifikalar' } as Record<string, string>)[sectionKey]
+function ExecSideSection({ sectionKey, cv, c, f, lang }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any; lang: CVLanguage }) {
+  const title = SECTION_TITLES[lang][sectionKey]
   return (
     <div style={{ marginBottom: '16px' }}>
       <div style={{ fontSize: '9.5px', fontFamily: f.display, letterSpacing: '0.2em', textTransform: 'uppercase', color: c.primary, borderBottom: `1px solid ${c.divider}`, paddingBottom: '3px', marginBottom: '8px' }}>{title}</div>
@@ -145,7 +147,7 @@ function ExecSideSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv:
       ))}
       {sectionKey === 'languages' && cv.languages.map((l) => (
         <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '3px' }}>
-          <span>{l.name}</span><span style={{ color: c.muted }}>{PROFICIENCY_LABEL[l.proficiency]}</span>
+          <span>{l.name}</span><span style={{ color: c.muted }}>{proficiencyLabel(l.proficiency, lang)}</span>
         </div>
       ))}
       {sectionKey === 'certificates' && cv.certificates.map((cert) => (

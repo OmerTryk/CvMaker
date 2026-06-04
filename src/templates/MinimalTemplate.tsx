@@ -5,14 +5,15 @@
  * Left rail for dates, right side for content.
  */
 
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
 import {
   formatDateRange,
   getVisibleSections,
   joinParts,
   normalizeUrl,
-  PROFICIENCY_LABEL,
+  proficiencyLabel,
+  SECTION_TITLES,
   sectionHasContent,
 } from './shared/helpers'
 
@@ -23,10 +24,12 @@ interface MinimalTemplateProps {
 export function MinimalTemplate({ cv }: MinimalTemplateProps) {
   const colors = COLOR_THEMES[cv.settings.colorTheme]
   const fonts = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
 
   return (
     <article
+      lang={lang}
       className="h-full w-full px-14 py-12"
       style={{
         fontFamily: fonts.body,
@@ -88,6 +91,7 @@ export function MinimalTemplate({ cv }: MinimalTemplateProps) {
               cv={cv}
               colors={colors}
               fonts={fonts}
+              lang={lang}
             />
           )
         })}
@@ -149,17 +153,22 @@ function MinimalSection({
   cv,
   colors,
   fonts,
+  lang,
 }: {
   sectionKey: SectionKey
   cv: CVDocument
   colors: ReturnType<typeof getColors>
   fonts: { display: string; body: string }
+  lang: CVLanguage
 }) {
+  const t = (key: SectionKey, tr: string) =>
+    lang === 'en' ? SECTION_TITLES.en[key] : tr
+
   if (sectionKey === 'summary') {
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Özet
+          {t('summary', 'Özet')}
         </SectionTitle>
         <p
           className="max-w-[520px] text-[13px] leading-[1.7]"
@@ -175,7 +184,7 @@ function MinimalSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Deneyim
+          {t('experience', 'Deneyim')}
         </SectionTitle>
         <div className="flex flex-col gap-6">
           {cv.experience.map((exp) => (
@@ -183,7 +192,7 @@ function MinimalSection({
               key={exp.id}
               colors={colors}
               className="cv-item"
-              left={formatDateRange(exp.startDate, exp.current ? null : exp.endDate)}
+              left={formatDateRange(exp.startDate, exp.current ? null : exp.endDate, lang)}
               right={
                 <div>
                   <h3
@@ -233,7 +242,7 @@ function MinimalSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Eğitim
+          {t('education', 'Eğitim')}
         </SectionTitle>
         <div className="flex flex-col gap-5">
           {cv.education.map((edu) => (
@@ -241,7 +250,7 @@ function MinimalSection({
               key={edu.id}
               colors={colors}
               className="cv-item"
-              left={formatDateRange(edu.startDate, edu.current ? null : edu.endDate)}
+              left={formatDateRange(edu.startDate, edu.current ? null : edu.endDate, lang)}
               right={
                 <div>
                   <h3
@@ -275,7 +284,7 @@ function MinimalSection({
 
   if (sectionKey === 'skills') {
     const grouped = cv.skills.reduce<Record<string, typeof cv.skills>>((acc, s) => {
-      const cat = s.category || 'Genel'
+      const cat = s.category || (lang === 'en' ? 'General' : 'Genel')
       acc[cat] = acc[cat] ?? []
       acc[cat].push(s)
       return acc
@@ -284,7 +293,7 @@ function MinimalSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Yetenekler
+          {t('skills', 'Yetenekler')}
         </SectionTitle>
         <div className="flex flex-col gap-3">
           {Object.entries(grouped).map(([cat, items]) => (
@@ -308,14 +317,14 @@ function MinimalSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Diller
+          {t('languages', 'Diller')}
         </SectionTitle>
         <div className="flex flex-col gap-2">
           {cv.languages.map((l) => (
             <Row
               key={l.id}
               colors={colors}
-              left={PROFICIENCY_LABEL[l.proficiency] ?? l.proficiency}
+              left={proficiencyLabel(l.proficiency, lang)}
               right={
                 <span className="text-[13px]" style={{ color: colors.text }}>
                   {l.name}
@@ -332,7 +341,7 @@ function MinimalSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Projeler
+          {t('projects', 'Projeler')}
         </SectionTitle>
         <div className="flex flex-col gap-5">
           {cv.projects.map((p) => (
@@ -342,9 +351,9 @@ function MinimalSection({
               className="cv-item"
               left={
                 p.startDate
-                  ? formatDateRange(p.startDate, p.endDate)
+                  ? formatDateRange(p.startDate, p.endDate, lang)
                   : p.url
-                    ? 'açık kaynak'
+                    ? lang === 'en' ? 'open source' : 'açık kaynak'
                     : ''
               }
               right={
@@ -392,14 +401,14 @@ function MinimalSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Sertifikalar
+          {t('certificates', 'Sertifikalar')}
         </SectionTitle>
         <div className="flex flex-col gap-3">
           {cv.certificates.map((c) => (
             <Row
               key={c.id}
               colors={colors}
-              left={formatDateRange(c.date, c.date)}
+              left={c.date ? formatDateRange(c.date, c.date, lang) : ''}
               right={
                 <div>
                   <p
@@ -429,7 +438,7 @@ function MinimalSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Referanslar
+          {t('references', 'Referanslar')}
         </SectionTitle>
         <div className="grid grid-cols-2 gap-5">
           {cv.references.map((r) => (

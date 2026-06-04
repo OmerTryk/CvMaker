@@ -4,7 +4,7 @@ import { ArrowLeft, Edit3 } from 'lucide-react'
 import { useCVStore } from '@/store'
 import { TemplateRenderer } from '@/templates'
 import { TEMPLATE_LIST, A4 } from '@/templates/shared/tokens'
-import { ExportButton } from '@/features/export'
+import { ExportButton, WordExportButton } from '@/features/export'
 import { Paginator } from '@/components/ui'
 import { useSmartPageBreaks } from '@/hooks/useSmartPageBreaks'
 import { cn } from '@/lib/utils'
@@ -84,6 +84,7 @@ export function PreviewPage() {
           >
             <Edit3 size={12} /> Düzenle
           </Link>
+          <WordExportButton variant="primary" label="Word İndir" />
           <ExportButton variant="primary" label="PDF İndir" />
         </div>
       </div>

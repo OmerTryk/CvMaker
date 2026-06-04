@@ -21,18 +21,18 @@ export function AchievementAI() {
       .map((l) => l.replace(/^[-–—]\s*/, '').trim())
       .filter(Boolean)
 
-  const handleAppend = () => {
-    if (result && selectedId) {
-      const bullets = parseBullets(result)
+  const handleAppend = (text: string) => {
+    if (text && selectedId) {
+      const bullets = parseBullets(text)
       const current = selected?.achievements ?? []
       updateExperience(selectedId, { achievements: [...current, ...bullets] })
       reset()
     }
   }
 
-  const handleReplace = () => {
-    if (result && selectedId) {
-      const bullets = parseBullets(result)
+  const handleReplace = (text: string) => {
+    if (text && selectedId) {
+      const bullets = parseBullets(text)
       updateExperience(selectedId, { achievements: bullets })
       reset()
     }

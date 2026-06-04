@@ -2,7 +2,7 @@
  * Shared rendering helpers for CV templates.
  */
 
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey, LanguageProficiency } from '@/types/cv'
 import { formatMonthYear } from '@/utils/date'
 
 /**
@@ -72,14 +72,80 @@ export function normalizeUrl(url: string): string {
 }
 
 /**
- * Maps language proficiency to a human-readable label.
+ * Maps language proficiency to a human-readable label (locale-aware).
  */
-export const PROFICIENCY_LABEL: Record<string, string> = {
-  A1: 'Başlangıç',
-  A2: 'Temel',
-  B1: 'Orta',
-  B2: 'Orta-Üstü',
-  C1: 'İleri',
-  C2: 'Yetkin',
-  Native: 'Anadil',
+export const PROFICIENCY_LABELS: Record<CVLanguage, Record<LanguageProficiency, string>> = {
+  tr: {
+    A1: 'Başlangıç',
+    A2: 'Temel',
+    B1: 'Orta',
+    B2: 'Orta-Üstü',
+    C1: 'İleri',
+    C2: 'Yetkin',
+    Native: 'Anadil',
+  },
+  en: {
+    A1: 'Beginner',
+    A2: 'Elementary',
+    B1: 'Intermediate',
+    B2: 'Upper-Intermediate',
+    C1: 'Advanced',
+    C2: 'Proficient',
+    Native: 'Native',
+  },
+}
+
+/**
+ * Returns the proficiency label for the given language, falling back to the
+ * raw proficiency code if it is not a known value.
+ */
+export function proficiencyLabel(
+  proficiency: string,
+  lang: CVLanguage = 'tr',
+): string {
+  return PROFICIENCY_LABELS[lang][proficiency as LanguageProficiency] ?? proficiency
+}
+
+/**
+ * Backward-compatible Turkish proficiency map (legacy callers).
+ * @deprecated use {@link proficiencyLabel} with the CV language.
+ */
+export const PROFICIENCY_LABEL = PROFICIENCY_LABELS.tr
+
+// ─────────────────────────────────────────────────────────────
+// Section titles (locale-aware)
+// ─────────────────────────────────────────────────────────────
+
+export const SECTION_TITLES: Record<CVLanguage, Record<SectionKey, string>> = {
+  tr: {
+    summary: 'Özet',
+    experience: 'Deneyim',
+    education: 'Eğitim',
+    skills: 'Yetenekler',
+    projects: 'Projeler',
+    languages: 'Diller',
+    certificates: 'Sertifikalar',
+    references: 'Referanslar',
+  },
+  en: {
+    summary: 'Profile',
+    experience: 'Experience',
+    education: 'Education',
+    skills: 'Skills',
+    projects: 'Projects',
+    languages: 'Languages',
+    certificates: 'Certifications',
+    references: 'References',
+  },
+}
+
+/** Returns the localized title for a section. */
+export function sectionTitle(key: SectionKey, lang: CVLanguage = 'tr'): string {
+  return SECTION_TITLES[lang][key]
+}
+
+/** Misc repeated UI labels used across templates. */
+export const MISC_LABELS: Record<CVLanguage, { technologies: string }> = {
+  tr: { technologies: 'Teknolojiler' },
+  en: { technologies: 'Technologies' },
 }

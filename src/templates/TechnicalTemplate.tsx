@@ -1,10 +1,11 @@
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
 import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, sectionHasContent } from './shared/helpers'
 
 export function TechnicalTemplate({ cv }: { cv: CVDocument }) {
   const c = COLOR_THEMES[cv.settings.colorTheme]
   const f = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
 
   const rightKeys: SectionKey[] = ['skills', 'languages', 'certificates', 'education']
@@ -12,7 +13,7 @@ export function TechnicalTemplate({ cv }: { cv: CVDocument }) {
   const sideKeys = visible.filter((k) => rightKeys.includes(k))
 
   return (
-    <article style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '24px 28px', minHeight: '100%' }}>
+    <article lang={lang} style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '24px 28px', minHeight: '100%' }}>
       {/* Header */}
       <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: `2px solid ${c.primary}`, paddingBottom: '14px', marginBottom: '20px', position: 'relative' }}>
         <div>
@@ -42,13 +43,13 @@ export function TechnicalTemplate({ cv }: { cv: CVDocument }) {
         {/* Main */}
         <div>
           {mainKeys.map((key) => !sectionHasContent(cv, key) ? null : (
-            <TechSection key={key} sectionKey={key} cv={cv} c={c} />
+            <TechSection key={key} sectionKey={key} cv={cv} c={c} lang={lang} />
           ))}
         </div>
         {/* Sidebar */}
         <div>
           {sideKeys.map((key) => !sectionHasContent(cv, key) ? null : (
-            <TechSide key={key} sectionKey={key} cv={cv} c={c} />
+            <TechSide key={key} sectionKey={key} cv={cv} c={c} lang={lang} />
           ))}
         </div>
       </div>
@@ -64,7 +65,7 @@ function TechLabel({ children, c }: { children: React.ReactNode; c: any }) {
   )
 }
 
-function TechSection({ sectionKey, cv, c }: { sectionKey: SectionKey; cv: CVDocument; c: any }) {
+function TechSection({ sectionKey, cv, c, lang }: { sectionKey: SectionKey; cv: CVDocument; c: any; lang: CVLanguage }) {
   if (sectionKey === 'summary') return (
     <div><TechLabel c={c}>Summary</TechLabel>
       <p style={{ fontSize: '12px', lineHeight: 1.7, color: c.text, margin: 0 }}>{cv.summary.content}</p>
@@ -76,7 +77,7 @@ function TechSection({ sectionKey, cv, c }: { sectionKey: SectionKey; cv: CVDocu
         <div key={e.id} className="cv-item" style={{ paddingLeft: '12px', borderLeft: `2px solid ${c.primary}`, marginBottom: '14px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>{e.position} · {e.company}</span>
-            <span style={{ fontFamily: 'monospace', fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</span>
+            <span style={{ fontFamily: 'monospace', fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</span>
           </div>
           {e.location && <p style={{ fontSize: '10.5px', color: c.muted, margin: '0 0 4px', fontFamily: 'monospace' }}>{e.location}</p>}
           {e.description && <p style={{ fontSize: '11.5px', lineHeight: 1.6, color: c.text, margin: '0 0 4px' }}>{e.description}</p>}
@@ -116,7 +117,7 @@ function TechSection({ sectionKey, cv, c }: { sectionKey: SectionKey; cv: CVDocu
   return null
 }
 
-function TechSide({ sectionKey, cv, c }: { sectionKey: SectionKey; cv: CVDocument; c: any }) {
+function TechSide({ sectionKey, cv, c, lang }: { sectionKey: SectionKey; cv: CVDocument; c: any; lang: CVLanguage }) {
   const label = ({ skills: 'Skills', languages: 'Languages', certificates: 'Certs', education: 'Education' } as Record<string, string>)[sectionKey]
   return (
     <div style={{ marginBottom: '16px' }}>
@@ -141,7 +142,7 @@ function TechSide({ sectionKey, cv, c }: { sectionKey: SectionKey; cv: CVDocumen
         <div key={e.id} style={{ marginBottom: '8px' }}>
           <p style={{ fontSize: '11.5px', fontWeight: 600, margin: '0 0 1px' }}>{e.institution}</p>
           <p style={{ fontSize: '10.5px', color: c.muted, margin: '0 0 1px' }}>{joinParts([e.degree, e.field])}</p>
-          <p style={{ fontFamily: 'monospace', fontSize: '10px', color: c.muted, margin: 0 }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</p>
+          <p style={{ fontFamily: 'monospace', fontSize: '10px', color: c.muted, margin: 0 }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</p>
         </div>
       ))}
     </div>

@@ -143,7 +143,7 @@ export const CertificateSchema = z.object({
   id: z.string(),
   name: z.string().min(1, 'Sertifika adı zorunludur').max(150),
   issuer: z.string().max(120).default(''),
-  date: monthDate,
+  date: optionalMonthDate.default(null),
   url: url.default(''),
   credentialId: z.string().max(100).default(''),
 })

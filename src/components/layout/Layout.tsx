@@ -17,13 +17,16 @@ export function Layout() {
   const openAIPanel = useAIStore((s) => s.openPanel)
   const { dark, toggle: toggleDark } = useDarkMode()
 
-  // ── CV List: migrate existing single CV on first launch ──
-  const cv         = useCVStore((s) => s.cv)
-  const initFromCV = useCVListStore((s) => s.initFromCV)
-  const syncMeta   = useCVListStore((s) => s.syncMeta)
+  // ── CV List: keep the list store in sync with the active CV ──
+  // The active CV lives in cv-store; mirroring it on every change registers
+  // new CVs, refreshes snapshots, and keeps activeId correct — so the two
+  // stores never drift apart (which previously caused lost/un-editable CVs).
+  const cv           = useCVStore((s) => s.cv)
+  const mirrorActive = useCVListStore((s) => s.mirrorActive)
+  const pruneOrphans = useCVListStore((s) => s.pruneOrphans)
 
-  useEffect(() => { initFromCV(cv) }, [])          // migration: once on mount
-  useEffect(() => { syncMeta(cv) }, [cv.updatedAt, cv.title, cv.settings.template, cv.settings.colorTheme])
+  useEffect(() => { mirrorActive(cv) }, [cv, mirrorActive])
+  useEffect(() => { pruneOrphans() }, [pruneOrphans])  // clean up legacy orphans once
 
   useKeyboardShortcuts([
     {

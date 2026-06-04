@@ -14,9 +14,9 @@ export function ExperienceAI() {
 
   const selected = experience.find((e) => e.id === selectedId)
 
-  const handleApply = () => {
-    if (result && selectedId) {
-      updateExperience(selectedId, { description: result.trim() })
+  const handleApply = (text: string) => {
+    if (text && selectedId) {
+      updateExperience(selectedId, { description: text.trim() })
       reset()
     }
   }

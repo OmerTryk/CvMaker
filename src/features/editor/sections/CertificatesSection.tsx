@@ -31,7 +31,7 @@ function CertificateItem({ item }: { item: Certificate }) {
 
   const summary = item.name || 'Yeni sertifika'
   const meta = item.issuer
-    ? `${item.issuer} · ${formatMonthYear(item.date)}`
+    ? item.date ? `${item.issuer} · ${formatMonthYear(item.date)}` : item.issuer
     : 'düzenlemek için aç'
 
   return (
@@ -61,8 +61,8 @@ function CertificateItem({ item }: { item: Certificate }) {
           {(p) => (
             <MonthInput
               {...p}
-              value={item.date}
-              onChange={(e) => update(item.id, { date: e.target.value })}
+              value={item.date ?? ''}
+              onChange={(e) => update(item.id, { date: e.target.value || null })}
             />
           )}
         </Field>

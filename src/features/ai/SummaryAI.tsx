@@ -9,9 +9,9 @@ export function SummaryAI() {
   const updateSummary = useCVStore((s) => s.updateSummary)
   const { result, loading, error, run, reset } = useAIStream()
 
-  const handleApply = () => {
-    if (result) {
-      updateSummary(result.trim())
+  const handleApply = (text: string) => {
+    if (text) {
+      updateSummary(text.trim())
       reset()
     }
   }

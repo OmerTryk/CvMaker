@@ -2,13 +2,14 @@
  * Compact Template — dense 3-column layout.
  * Maximizes content per page. Great for experienced professionals.
  */
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
-import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, PROFICIENCY_LABEL, sectionHasContent } from './shared/helpers'
+import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, proficiencyLabel, SECTION_TITLES, sectionHasContent } from './shared/helpers'
 
 export function CompactTemplate({ cv }: { cv: CVDocument }) {
   const c = COLOR_THEMES[cv.settings.colorTheme]
   const f = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
 
   const leftKeys: SectionKey[] = ['experience', 'projects']
@@ -18,7 +19,7 @@ export function CompactTemplate({ cv }: { cv: CVDocument }) {
   const col = (keys: SectionKey[]) => visible.filter((k) => keys.includes(k))
 
   return (
-    <article style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '18px 22px', minHeight: '100%', fontSize: '11px' }}>
+    <article lang={lang} style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '18px 22px', minHeight: '100%', fontSize: '11px' }}>
       {/* Header */}
       <header style={{ borderBottom: `2px solid ${c.primary}`, paddingBottom: '10px', marginBottom: '12px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -52,19 +53,19 @@ export function CompactTemplate({ cv }: { cv: CVDocument }) {
         {/* Left */}
         <div>
           {col(leftKeys).map((key) => !sectionHasContent(cv, key) ? null : (
-            <CompactSection key={key} sectionKey={key} cv={cv} c={c} f={f} />
+            <CompactSection key={key} sectionKey={key} cv={cv} c={c} f={f} lang={lang} />
           ))}
         </div>
         {/* Mid */}
         <div>
           {col(midKeys).map((key) => !sectionHasContent(cv, key) ? null : (
-            <CompactSection key={key} sectionKey={key} cv={cv} c={c} f={f} />
+            <CompactSection key={key} sectionKey={key} cv={cv} c={c} f={f} lang={lang} />
           ))}
         </div>
         {/* Right */}
         <div>
           {col(rightKeys).map((key) => !sectionHasContent(cv, key) ? null : (
-            <CompactSection key={key} sectionKey={key} cv={cv} c={c} f={f} />
+            <CompactSection key={key} sectionKey={key} cv={cv} c={c} f={f} lang={lang} />
           ))}
         </div>
       </div>
@@ -80,8 +81,8 @@ function CLabel({ children, c, f }: { children: React.ReactNode; c: any; f: any 
   )
 }
 
-function CompactSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any }) {
-  const titles: Record<string, string> = { experience: 'Deneyim', education: 'Eğitim', skills: 'Yetenekler', projects: 'Projeler', languages: 'Diller', certificates: 'Sertifikalar', references: 'Referanslar' }
+function CompactSection({ sectionKey, cv, c, f, lang }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any; lang: CVLanguage }) {
+  const titles = SECTION_TITLES[lang]
 
   if (sectionKey === 'experience') return (
     <div><CLabel c={c} f={f}>{titles[sectionKey]}</CLabel>
@@ -89,7 +90,7 @@ function CompactSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: 
         <div key={e.id} className="cv-item" style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '4px' }}>
             <span style={{ fontSize: '11.5px', fontWeight: 600, lineHeight: 1.3 }}>{e.position}</span>
-            <span style={{ fontSize: '9.5px', color: c.muted, whiteSpace: 'nowrap', flexShrink: 0 }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</span>
+            <span style={{ fontSize: '9.5px', color: c.muted, whiteSpace: 'nowrap', flexShrink: 0 }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</span>
           </div>
           <p style={{ fontSize: '10.5px', color: c.primary, fontStyle: 'italic', margin: '1px 0 3px' }}>{joinParts([e.company, e.location])}</p>
           {e.description && <p style={{ fontSize: '10.5px', lineHeight: 1.6, color: c.text, margin: '0 0 2px' }}>{e.description}</p>}
@@ -105,7 +106,7 @@ function CompactSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: 
         <div key={e.id} className="cv-item" style={{ marginBottom: '9px' }}>
           <p style={{ fontSize: '11.5px', fontWeight: 600, margin: '0 0 1px' }}>{e.institution}</p>
           <p style={{ fontSize: '10.5px', color: c.primary, fontStyle: 'italic', margin: '0 0 1px' }}>{joinParts([e.degree, e.field])}</p>
-          <p style={{ fontSize: '9.5px', color: c.muted, margin: 0 }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}{e.gpa ? ` · GPA ${e.gpa}` : ''}</p>
+          <p style={{ fontSize: '9.5px', color: c.muted, margin: 0 }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}{e.gpa ? ` · GPA ${e.gpa}` : ''}</p>
         </div>
       ))}
     </div>
@@ -128,7 +129,7 @@ function CompactSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: 
     <div><CLabel c={c} f={f}>{titles[sectionKey]}</CLabel>
       {cv.languages.map((l) => (
         <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '10.5px', marginBottom: '3px' }}>
-          <span>{l.name}</span><span style={{ color: c.muted }}>{PROFICIENCY_LABEL[l.proficiency]}</span>
+          <span>{l.name}</span><span style={{ color: c.muted }}>{proficiencyLabel(l.proficiency, lang)}</span>
         </div>
       ))}
     </div>

@@ -1,14 +1,15 @@
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
-import { formatDateRange, getVisibleSections, joinParts, PROFICIENCY_LABEL, sectionHasContent } from './shared/helpers'
+import { formatDateRange, getVisibleSections, joinParts, proficiencyLabel, SECTION_TITLES, sectionHasContent } from './shared/helpers'
 
 export function TimelineTemplate({ cv }: { cv: CVDocument }) {
   const c = COLOR_THEMES[cv.settings.colorTheme]
   const f = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
 
   return (
-    <article style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '28px 36px', minHeight: '100%' }}>
+    <article lang={lang} style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '28px 36px', minHeight: '100%' }}>
       {/* Header — centered */}
       <header style={{ textAlign: 'center', borderBottom: `1px solid ${c.divider}`, paddingBottom: '18px', marginBottom: '22px' }}>
         {cv.personal.photoUrl && (
@@ -40,7 +41,7 @@ export function TimelineTemplate({ cv }: { cv: CVDocument }) {
 
       {/* Sections */}
       {visible.filter((k) => k !== 'summary').map((key) => !sectionHasContent(cv, key) ? null : (
-        <TimelineSection key={key} sectionKey={key} cv={cv} c={c} f={f} />
+        <TimelineSection key={key} sectionKey={key} cv={cv} c={c} f={f} lang={lang} />
       ))}
     </article>
   )
@@ -54,8 +55,8 @@ function SectionLabel({ children, c, f }: { children: React.ReactNode; c: any; f
   )
 }
 
-function TimelineSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any }) {
-  const labels: Record<string, string> = { experience: 'Deneyim', education: 'Eğitim', projects: 'Projeler', skills: 'Yetenekler', languages: 'Diller', certificates: 'Sertifikalar', references: 'Referanslar' }
+function TimelineSection({ sectionKey, cv, c, f, lang }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any; lang: CVLanguage }) {
+  const labels = SECTION_TITLES[lang]
 
   if (sectionKey === 'experience') return (
     <section style={{ marginBottom: '22px' }}>
@@ -70,7 +71,7 @@ function TimelineSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv:
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: '2px' }}>
                 <span style={{ fontSize: '13.5px', fontWeight: 600, color: idx === 0 ? c.text : '#444' }}>{e.position}</span>
-                <span style={{ fontSize: '10px', fontFamily: 'monospace', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</span>
+                <span style={{ fontSize: '10px', fontFamily: 'monospace', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</span>
               </div>
               <p style={{ fontSize: '11px', color: c.primary, fontStyle: 'italic', margin: '0 0 5px' }}>{joinParts([e.company, e.location])}</p>
               {e.description && <p style={{ fontSize: '11.5px', lineHeight: 1.65, color: idx === 0 ? c.text : c.muted, margin: '0 0 4px' }}>{e.description}</p>}
@@ -94,7 +95,7 @@ function TimelineSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv:
             <div>
               <span style={{ fontSize: '13px', fontWeight: 600 }}>{e.institution}</span>
               <p style={{ fontSize: '11px', color: c.primary, fontStyle: 'italic', margin: '1px 0 2px' }}>{joinParts([e.degree, e.field])}</p>
-              <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</span>
+              <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</span>
             </div>
           </div>
         ))}
@@ -115,7 +116,7 @@ function TimelineSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv:
     <section style={{ marginBottom: '20px' }}>
       <SectionLabel c={c} f={f}>{labels[sectionKey]}</SectionLabel>
       <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', fontSize: '11.5px' }}>
-        {cv.languages.map((l) => <span key={l.id}>{l.name} <span style={{ color: c.muted, fontSize: '10.5px' }}>({PROFICIENCY_LABEL[l.proficiency]})</span></span>)}
+        {cv.languages.map((l) => <span key={l.id}>{l.name} <span style={{ color: c.muted, fontSize: '10.5px' }}>({proficiencyLabel(l.proficiency, lang)})</span></span>)}
       </div>
     </section>
   )

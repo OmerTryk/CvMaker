@@ -4,7 +4,7 @@
 
 ## Bu proje nedir?
 
-Türkçe konuşan iş arayanlar için AI-destekli CV oluşturma SPA'sı. React 18 + TypeScript + Vite + Tailwind + Zustand. Kullanıcı kendi Gemini veya Groq anahtarını tarayıcısında saklar, doğrudan sağlayıcıya istek atar — hiçbir backend yok. 9 profesyonel şablon, ATS-uyumlu PDF export, PDF içe aktarma, CV puanlama, iş ilanı eşleştirme ve AI destekli iş arama.
+Türkçe konuşan iş arayanlar için AI-destekli CV oluşturma SPA'sı. React 18 + TypeScript + Vite + Tailwind + Zustand. Kullanıcı kendi Gemini anahtarını tarayıcısında saklar, doğrudan sağlayıcıya istek atar — hiçbir backend yok. 9 profesyonel şablon (TR/EN dil duyarlı), ATS-uyumlu PDF + Word export, PDF içe aktarma, CV puanlama, iş ilanı eşleştirme, AI destekli iş arama ve AI ile İngilizceye çeviri (yeni CV olarak).
 
 ## Üç katman
 - **Niyet:** `.claude/charter/PROJECT_INTENT.md` — neden, ne, ne DEĞİL
@@ -58,7 +58,6 @@ src/
 ## Yapılmayacaklar (Doktor kelime listesi)
 
 - ❌ Backend / sunucu / veritabanı / proxy
-- ❌ Word (.docx) export — `useWordExport`
 - ❌ Mobil native uygulama
 - ❌ Çoklu kullanıcı / paylaşım / yorum / SaaS / abonelik
 - ❌ Test framework (jest / vitest / playwright) — D-203 bilinçli karar

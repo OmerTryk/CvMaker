@@ -5,14 +5,15 @@
  * Main: summary, experience, education, projects, certificates, references
  */
 
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
 import {
   formatDateRange,
   getVisibleSections,
   joinParts,
   normalizeUrl,
-  PROFICIENCY_LABEL,
+  proficiencyLabel,
+  SECTION_TITLES,
   sectionHasContent,
 } from './shared/helpers'
 import { Mail, Phone, MapPin, Globe, Linkedin, Github, Twitter } from 'lucide-react'
@@ -27,6 +28,7 @@ const SIDEBAR_SECTIONS = new Set<SectionKey>(['skills', 'languages'])
 export function ModernTemplate({ cv }: ModernTemplateProps) {
   const colors = COLOR_THEMES[cv.settings.colorTheme]
   const fonts = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
 
   const sidebarSections = visible.filter((s) => SIDEBAR_SECTIONS.has(s))
@@ -34,6 +36,7 @@ export function ModernTemplate({ cv }: ModernTemplateProps) {
 
   return (
     <article
+      lang={lang}
       className="flex h-full w-full"
       style={{
         fontFamily: fonts.body,
@@ -81,7 +84,7 @@ export function ModernTemplate({ cv }: ModernTemplateProps) {
         </header>
 
         {/* Contact */}
-        <SidebarSection title="İletişim" colors={colors} fonts={fonts}>
+        <SidebarSection title={lang === 'en' ? 'Contact' : 'İletişim'} colors={colors} fonts={fonts}>
           <ul className="flex flex-col gap-2 text-[11px] leading-relaxed">
             {cv.contact.email && (
               <ContactRow icon={<Mail size={11} />} colors={colors}>
@@ -128,7 +131,7 @@ export function ModernTemplate({ cv }: ModernTemplateProps) {
             return (
               <SidebarSection
                 key={key}
-                title="Yetenekler"
+                title={lang === 'en' ? SECTION_TITLES.en.skills : 'Yetenekler'}
                 colors={colors}
                 fonts={fonts}
               >
@@ -164,16 +167,16 @@ export function ModernTemplate({ cv }: ModernTemplateProps) {
             return (
               <SidebarSection
                 key={key}
-                title="Diller"
+                title={lang === 'en' ? SECTION_TITLES.en.languages : 'Diller'}
                 colors={colors}
                 fonts={fonts}
               >
                 <ul className="flex flex-col gap-2 text-[11px]">
-                  {cv.languages.map((lang) => (
-                    <li key={lang.id} className="flex justify-between">
-                      <span>{lang.name}</span>
+                  {cv.languages.map((l) => (
+                    <li key={l.id} className="flex justify-between">
+                      <span>{l.name}</span>
                       <span style={{ color: colors.muted }}>
-                        {PROFICIENCY_LABEL[lang.proficiency] ?? lang.proficiency}
+                        {proficiencyLabel(l.proficiency, lang)}
                       </span>
                     </li>
                   ))}
@@ -196,6 +199,7 @@ export function ModernTemplate({ cv }: ModernTemplateProps) {
               cv={cv}
               colors={colors}
               fonts={fonts}
+              lang={lang}
             />
           )
         })}
@@ -280,17 +284,22 @@ function MainSectionRenderer({
   cv,
   colors,
   fonts,
+  lang,
 }: {
   sectionKey: SectionKey
   cv: CVDocument
   colors: ReturnType<typeof getColors>
   fonts: { display: string; body: string }
+  lang: CVLanguage
 }) {
+  const t = (key: SectionKey, tr: string) =>
+    lang === 'en' ? SECTION_TITLES.en[key] : tr
+
   if (sectionKey === 'summary') {
     return (
       <section className="mb-6">
         <MainSectionTitle colors={colors} fonts={fonts}>
-          Özet
+          {t('summary', 'Özet')}
         </MainSectionTitle>
         <p className="text-[12px] leading-[1.65]" style={{ color: colors.text }}>
           {cv.summary.content}
@@ -303,7 +312,7 @@ function MainSectionRenderer({
     return (
       <section className="mb-6">
         <MainSectionTitle colors={colors} fonts={fonts}>
-          Deneyim
+          {t('experience', 'Deneyim')}
         </MainSectionTitle>
         <div className="flex flex-col gap-4">
           {cv.experience.map((exp) => (
@@ -319,7 +328,7 @@ function MainSectionRenderer({
                   className="text-[10.5px] uppercase tracking-wider"
                   style={{ color: colors.muted }}
                 >
-                  {formatDateRange(exp.startDate, exp.current ? null : exp.endDate)}
+                  {formatDateRange(exp.startDate, exp.current ? null : exp.endDate, lang)}
                 </span>
               </div>
               <p
@@ -361,7 +370,7 @@ function MainSectionRenderer({
     return (
       <section className="mb-6">
         <MainSectionTitle colors={colors} fonts={fonts}>
-          Eğitim
+          {t('education', 'Eğitim')}
         </MainSectionTitle>
         <div className="flex flex-col gap-3">
           {cv.education.map((edu) => (
@@ -377,7 +386,7 @@ function MainSectionRenderer({
                   className="text-[10.5px] uppercase tracking-wider"
                   style={{ color: colors.muted }}
                 >
-                  {formatDateRange(edu.startDate, edu.current ? null : edu.endDate)}
+                  {formatDateRange(edu.startDate, edu.current ? null : edu.endDate, lang)}
                 </span>
               </div>
               <p className="text-[12px] italic" style={{ color: colors.primary }}>
@@ -402,7 +411,7 @@ function MainSectionRenderer({
     return (
       <section className="mb-6">
         <MainSectionTitle colors={colors} fonts={fonts}>
-          Projeler
+          {t('projects', 'Projeler')}
         </MainSectionTitle>
         <div className="flex flex-col gap-3">
           {cv.projects.map((p) => (
@@ -450,7 +459,7 @@ function MainSectionRenderer({
     return (
       <section className="mb-6">
         <MainSectionTitle colors={colors} fonts={fonts}>
-          Sertifikalar
+          {t('certificates', 'Sertifikalar')}
         </MainSectionTitle>
         <ul className="flex flex-col gap-2">
           {cv.certificates.map((c) => (
@@ -464,12 +473,14 @@ function MainSectionRenderer({
                   <span style={{ color: colors.primary }}> · {c.issuer}</span>
                 )}
               </span>
-              <span
-                className="text-[10.5px] uppercase tracking-wider"
-                style={{ color: colors.muted }}
-              >
-                {formatDateRange(c.date, c.date)}
-              </span>
+              {c.date && (
+                <span
+                  className="text-[10.5px] uppercase tracking-wider"
+                  style={{ color: colors.muted }}
+                >
+                  {formatDateRange(c.date, c.date, lang)}
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -481,7 +492,7 @@ function MainSectionRenderer({
     return (
       <section className="mb-6">
         <MainSectionTitle colors={colors} fonts={fonts}>
-          Referanslar
+          {t('references', 'Referanslar')}
         </MainSectionTitle>
         <div className="grid grid-cols-2 gap-4">
           {cv.references.map((r) => (

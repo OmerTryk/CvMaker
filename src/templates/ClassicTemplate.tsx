@@ -5,14 +5,16 @@
  * bullet points for achievements. Maximum readability.
  */
 
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
 import {
   formatDateRange,
   getVisibleSections,
   joinParts,
+  MISC_LABELS,
   normalizeUrl,
-  PROFICIENCY_LABEL,
+  proficiencyLabel,
+  SECTION_TITLES,
   sectionHasContent,
 } from './shared/helpers'
 
@@ -23,6 +25,7 @@ interface ClassicTemplateProps {
 export function ClassicTemplate({ cv }: ClassicTemplateProps) {
   const colors = COLOR_THEMES[cv.settings.colorTheme]
   const fonts = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
 
   const contactLine1 = [cv.contact.email, cv.contact.phone, cv.contact.location]
@@ -38,6 +41,7 @@ export function ClassicTemplate({ cv }: ClassicTemplateProps) {
 
   return (
     <article
+      lang={lang}
       className="h-full w-full px-12 py-10"
       style={{
         fontFamily: fonts.body,
@@ -90,6 +94,7 @@ export function ClassicTemplate({ cv }: ClassicTemplateProps) {
             cv={cv}
             colors={colors}
             fonts={fonts}
+            lang={lang}
           />
         )
       })}
@@ -129,17 +134,23 @@ function ClassicSection({
   cv,
   colors,
   fonts,
+  lang,
 }: {
   sectionKey: SectionKey
   cv: CVDocument
   colors: ReturnType<typeof getColors>
   fonts: { display: string; body: string }
+  lang: CVLanguage
 }) {
+  // Localized title: keep each template's Turkish wording, use shared EN titles.
+  const t = (key: SectionKey, tr: string) =>
+    lang === 'en' ? SECTION_TITLES.en[key] : tr
+
   if (sectionKey === 'summary') {
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Profil Özeti
+          {t('summary', 'Profil Özeti')}
         </SectionTitle>
         <p className="text-[12px] leading-[1.7]" style={{ color: colors.text }}>
           {cv.summary.content}
@@ -152,7 +163,7 @@ function ClassicSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Deneyim
+          {t('experience', 'Deneyim')}
         </SectionTitle>
         <div className="flex flex-col gap-4">
           {cv.experience.map((exp) => (
@@ -168,7 +179,7 @@ function ClassicSection({
                   className="text-[11px] italic"
                   style={{ color: colors.muted }}
                 >
-                  {formatDateRange(exp.startDate, exp.current ? null : exp.endDate)}
+                  {formatDateRange(exp.startDate, exp.current ? null : exp.endDate, lang)}
                 </span>
               </div>
               <p
@@ -209,7 +220,7 @@ function ClassicSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Eğitim
+          {t('education', 'Eğitim')}
         </SectionTitle>
         <div className="flex flex-col gap-3">
           {cv.education.map((edu) => (
@@ -225,7 +236,7 @@ function ClassicSection({
                   className="text-[11px] italic"
                   style={{ color: colors.muted }}
                 >
-                  {formatDateRange(edu.startDate, edu.current ? null : edu.endDate)}
+                  {formatDateRange(edu.startDate, edu.current ? null : edu.endDate, lang)}
                 </span>
               </div>
               <p
@@ -252,7 +263,7 @@ function ClassicSection({
   if (sectionKey === 'skills') {
     // Group skills by category
     const grouped = cv.skills.reduce<Record<string, typeof cv.skills>>((acc, s) => {
-      const cat = s.category || 'Genel'
+      const cat = s.category || (lang === 'en' ? 'General' : 'Genel')
       acc[cat] = acc[cat] ?? []
       acc[cat].push(s)
       return acc
@@ -262,7 +273,7 @@ function ClassicSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Yetenekler
+          {t('skills', 'Yetenekler')}
         </SectionTitle>
         <div className="flex flex-col gap-1.5">
           {groups.map(([cat, items]) => (
@@ -280,14 +291,11 @@ function ClassicSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Diller
+          {t('languages', 'Diller')}
         </SectionTitle>
         <p className="text-[12px]" style={{ color: colors.text }}>
           {cv.languages
-            .map(
-              (l) =>
-                `${l.name} (${PROFICIENCY_LABEL[l.proficiency] ?? l.proficiency})`,
-            )
+            .map((l) => `${l.name} (${proficiencyLabel(l.proficiency, lang)})`)
             .join(' · ')}
         </p>
       </section>
@@ -298,7 +306,7 @@ function ClassicSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Projeler
+          {t('projects', 'Projeler')}
         </SectionTitle>
         <div className="flex flex-col gap-3">
           {cv.projects.map((p) => (
@@ -332,7 +340,7 @@ function ClassicSection({
                   className="mt-1 text-[11px] italic"
                   style={{ color: colors.primary }}
                 >
-                  Teknolojiler: {p.technologies.join(', ')}
+                  {MISC_LABELS[lang].technologies}: {p.technologies.join(', ')}
                 </p>
               )}
             </div>
@@ -346,7 +354,7 @@ function ClassicSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Sertifikalar
+          {t('certificates', 'Sertifikalar')}
         </SectionTitle>
         <ul className="ml-5 flex flex-col gap-1.5 list-disc">
           {cv.certificates.map((c) => (
@@ -357,10 +365,12 @@ function ClassicSection({
             >
               <strong>{c.name}</strong>
               {c.issuer && <span> — {c.issuer}</span>}
-              <span style={{ color: colors.muted }}>
-                {' '}
-                ({formatDateRange(c.date, c.date)})
-              </span>
+              {c.date && (
+                <span style={{ color: colors.muted }}>
+                  {' '}
+                  ({formatDateRange(c.date, c.date, lang)})
+                </span>
+              )}
             </li>
           ))}
         </ul>
@@ -372,7 +382,7 @@ function ClassicSection({
     return (
       <section>
         <SectionTitle colors={colors} fonts={fonts}>
-          Referanslar
+          {t('references', 'Referanslar')}
         </SectionTitle>
         <div className="grid grid-cols-2 gap-4">
           {cv.references.map((r) => (

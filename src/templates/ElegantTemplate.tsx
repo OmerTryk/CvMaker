@@ -2,17 +2,18 @@
  * Elegant Template — centered serif, thin rules, very formal.
  * For law, finance, academia, consulting.
  */
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
-import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, PROFICIENCY_LABEL, sectionHasContent } from './shared/helpers'
+import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, proficiencyLabel, SECTION_TITLES, sectionHasContent } from './shared/helpers'
 
 export function ElegantTemplate({ cv }: { cv: CVDocument }) {
   const c = COLOR_THEMES[cv.settings.colorTheme]
   const f = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
 
   return (
-    <article style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '36px 48px', minHeight: '100%' }}>
+    <article lang={lang} style={{ fontFamily: f.body, color: c.text, background: c.surface, padding: '36px 48px', minHeight: '100%' }}>
       {/* Centered header */}
       <header style={{ textAlign: 'center', marginBottom: '24px' }}>
         {cv.personal.photoUrl && (
@@ -45,7 +46,7 @@ export function ElegantTemplate({ cv }: { cv: CVDocument }) {
       </header>
 
       {visible.map((key) => !sectionHasContent(cv, key) ? null : (
-        <ElegantSection key={key} sectionKey={key} cv={cv} c={c} f={f} />
+        <ElegantSection key={key} sectionKey={key} cv={cv} c={c} f={f} lang={lang} />
       ))}
     </article>
   )
@@ -62,8 +63,10 @@ function ElegantSectionTitle({ children, c, f }: { children: React.ReactNode; c:
   )
 }
 
-function ElegantSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any }) {
-  const titles: Record<string, string> = { summary: 'Profil', experience: 'Deneyim', education: 'Eğitim', skills: 'Yetenekler', projects: 'Projeler', languages: 'Diller', certificates: 'Sertifikalar', references: 'Referanslar' }
+function ElegantSection({ sectionKey, cv, c, f, lang }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any; lang: CVLanguage }) {
+  const titles = lang === 'en'
+    ? SECTION_TITLES.en
+    : { summary: 'Profil', experience: 'Deneyim', education: 'Eğitim', skills: 'Yetenekler', projects: 'Projeler', languages: 'Diller', certificates: 'Sertifikalar', references: 'Referanslar' } as Record<SectionKey, string>
 
   if (sectionKey === 'summary') return (
     <section><ElegantSectionTitle c={c} f={f}>{titles[sectionKey]}</ElegantSectionTitle>
@@ -76,7 +79,7 @@ function ElegantSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: 
       {cv.experience.map((e) => (
         <div key={e.id} className="cv-item" style={{ marginBottom: '14px', display: 'grid', gridTemplateColumns: '130px 1fr' }}>
           <div style={{ paddingTop: '1px', paddingRight: '16px', borderRight: `0.5px solid ${c.divider}`, textAlign: 'right' }}>
-            <p style={{ fontSize: '10.5px', color: c.muted, margin: '0 0 2px', fontFamily: 'monospace' }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</p>
+            <p style={{ fontSize: '10.5px', color: c.muted, margin: '0 0 2px', fontFamily: 'monospace' }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</p>
             <p style={{ fontSize: '10.5px', color: c.primary, margin: 0, fontStyle: 'italic' }}>{e.location}</p>
           </div>
           <div style={{ paddingLeft: '16px' }}>
@@ -95,7 +98,7 @@ function ElegantSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: 
       {cv.education.map((e) => (
         <div key={e.id} className="cv-item" style={{ marginBottom: '12px', display: 'grid', gridTemplateColumns: '130px 1fr' }}>
           <div style={{ paddingRight: '16px', borderRight: `0.5px solid ${c.divider}`, textAlign: 'right' }}>
-            <p style={{ fontSize: '10.5px', color: c.muted, margin: 0, fontFamily: 'monospace' }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</p>
+            <p style={{ fontSize: '10.5px', color: c.muted, margin: 0, fontFamily: 'monospace' }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</p>
           </div>
           <div style={{ paddingLeft: '16px' }}>
             <p style={{ fontSize: '13px', fontWeight: 600, margin: '0 0 1px' }}>{e.institution}</p>
@@ -118,7 +121,7 @@ function ElegantSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: 
   if (sectionKey === 'languages') return (
     <section><ElegantSectionTitle c={c} f={f}>{titles[sectionKey]}</ElegantSectionTitle>
       <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap', fontSize: '11.5px' }}>
-        {cv.languages.map((l) => <span key={l.id}>{l.name} <span style={{ color: c.muted, fontSize: '10.5px' }}>({PROFICIENCY_LABEL[l.proficiency]})</span></span>)}
+        {cv.languages.map((l) => <span key={l.id}>{l.name} <span style={{ color: c.muted, fontSize: '10.5px' }}>({proficiencyLabel(l.proficiency, lang)})</span></span>)}
       </div>
     </section>
   )

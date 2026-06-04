@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react'
-import { X, Sparkles, FileText, RefreshCw, Lightbulb, ScanSearch } from 'lucide-react'
+import { X, Sparkles, FileText, RefreshCw, Lightbulb, ScanSearch, Languages } from 'lucide-react'
 import { useAIStore } from '@/store'
 import { ApiKeySetup } from './ApiKeySetup'
 import { SummaryAI } from './SummaryAI'
 import { ExperienceAI } from './ExperienceAI'
 import { AchievementAI } from './AchievementAI'
 import { AnalysisAI } from './AnalysisAI'
+import { TranslateAI } from './TranslateAI'
 import { cn } from '@/lib/utils'
 
-type FeatureKey = 'summary' | 'experience' | 'achievement' | 'analysis'
+type FeatureKey = 'summary' | 'experience' | 'achievement' | 'analysis' | 'translate'
 
 interface Feature {
   key: FeatureKey
@@ -46,6 +47,13 @@ const FEATURES: Feature[] = [
     title: 'CV\'mi Analiz Et',
     description: 'Güçlü/zayıf yön ve etki skoru verir',
     Component: AnalysisAI,
+  },
+  {
+    key: 'translate',
+    icon: <Languages size={16} strokeWidth={1.5} />,
+    title: 'İngilizceye Çevir',
+    description: 'CV\'yi yeni bir İngilizce kopya olarak çevirir',
+    Component: TranslateAI,
   },
 ]
 

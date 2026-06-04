@@ -37,6 +37,13 @@ interface CVListStore {
   /** On first launch: register the existing single CV as the active one */
   initFromCV: (cv: CVDocument) => void
 
+  /**
+   * Keep the list in sync with whatever CV currently lives in cv-store.
+   * Registers it if unknown, refreshes its snapshot, and marks it active.
+   * Called on every cv-store change so the two stores never drift apart.
+   */
+  mirrorActive: (cv: CVDocument) => void
+
   /** Save current CV to snapshot, load target CV, return it (or null if not found) */
   switchTo: (targetId: string, currentCV: CVDocument) => CVDocument | null
 
@@ -54,6 +61,13 @@ interface CVListStore {
 
   /** Save current CV snapshot (called before leaving editor) */
   saveSnapshot: (cv: CVDocument) => void
+
+  /**
+   * Remove list entries that are neither active nor have a snapshot — i.e.
+   * un-openable orphans left by older buggy versions. The active entry is
+   * always kept (matched by id) regardless of snapshot timing.
+   */
+  pruneOrphans: () => void
 }
 
 function toListItem(cv: CVDocument): CVListItem {
@@ -83,9 +97,21 @@ export const useCVListStore = create<CVListStore>()(
         set({
           list: [toListItem(cv)],
           activeId: cv.id,
-          snapshots: {},
+          snapshots: { [cv.id]: JSON.stringify(cv) },
         })
       },
+
+      mirrorActive: (cv) =>
+        set((s) => {
+          const inList = s.list.some((l) => l.id === cv.id)
+          return {
+            activeId: cv.id,
+            list: inList
+              ? s.list.map((l) => (l.id === cv.id ? toListItem(cv) : l))
+              : [...s.list, toListItem(cv)],
+            snapshots: { ...s.snapshots, [cv.id]: JSON.stringify(cv) },
+          }
+        }),
 
       switchTo: (targetId, currentCV) => {
         const { list, activeId, snapshots } = get()
@@ -103,13 +129,12 @@ export const useCVListStore = create<CVListStore>()(
           return null
         }
 
-        // Snapshot current active CV
+        // Snapshot current active CV. We KEEP the target's snapshot too — every
+        // CV (active included) stays mirrored, so switching can never lose data.
         const updatedSnapshots: Record<string, string> = {
           ...snapshots,
           [activeId]: JSON.stringify(currentCV),
         }
-        // Remove target from snapshots (now active)
-        delete updatedSnapshots[targetId]
 
         // Update meta for current CV (it just got snapshotted)
         const updatedList = list.map((item) =>
@@ -174,6 +199,13 @@ export const useCVListStore = create<CVListStore>()(
           ),
         }))
       },
+
+      pruneOrphans: () =>
+        set((s) => ({
+          list: s.list.filter(
+            (l) => l.id === s.activeId || s.snapshots[l.id] !== undefined,
+          ),
+        })),
     }),
     {
       name: 'ctrlcv.cvlist.v1',

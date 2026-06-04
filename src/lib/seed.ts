@@ -116,7 +116,7 @@ export function createEmptyCertificate(): Certificate {
     id: createId(),
     name: '',
     issuer: '',
-    date: '2024-01',
+    date: null,
     url: '',
     credentialId: '',
   }

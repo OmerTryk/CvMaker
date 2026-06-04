@@ -247,6 +247,35 @@ Kurallar:
 }
 
 // ─────────────────────────────────────────────────────────────
+// CV Translator — Turkish → English
+//
+// We send ONLY the translatable text fields as JSON and ask for the
+// SAME structure back, translated. Proper nouns, dates and enums are
+// never included in the payload, so they cannot be altered.
+// ─────────────────────────────────────────────────────────────
+
+export const CV_TRANSLATOR_SYSTEM = `You are a professional CV/resume translator.
+You translate Turkish CV content into natural, professional English used in real resumes.
+You ALWAYS reply with a single JSON object that mirrors the input structure exactly.
+No markdown, no code fences, no commentary — only JSON.`
+
+export function buildTranslatePrompt(payloadJson: string): string {
+  return `Translate the Turkish text values in the following JSON into professional English.
+
+Return a JSON object with the SAME keys and the SAME array lengths/order. Only translate the text values.
+
+RULES:
+- Do NOT translate or alter proper nouns: people names, company names, school/university names, brand/product names, technology or skill names (e.g. "React", "Node.js", "PostgreSQL").
+- Keep emails, URLs, phone numbers and dates exactly as given (they are not included here anyway).
+- Use natural, concise resume English with strong action verbs. Do not add or remove items.
+- Preserve the meaning; do not embellish or invent.
+- Reply with JSON only — no markdown, no \`\`\` fences, no extra text.
+
+INPUT JSON:
+${payloadJson}`
+}
+
+// ─────────────────────────────────────────────────────────────
 // Job Match Analyzer
 // ─────────────────────────────────────────────────────────────
 

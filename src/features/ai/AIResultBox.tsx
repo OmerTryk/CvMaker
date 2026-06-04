@@ -4,7 +4,7 @@
  */
 
 import { Loader2, AlertCircle, Copy, CheckCheck } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { AIError } from '@/lib/ai-client'
 import { cn } from '@/lib/utils'
 
@@ -12,11 +12,11 @@ interface AIResultBoxProps {
   result: string
   loading: boolean
   error: AIError | null
-  /** Primary apply action (e.g. "Özete Uygula") */
-  onApply?: () => void
+  /** Primary apply action — receives the (possibly edited) text */
+  onApply?: (text: string) => void
   applyLabel?: string
-  /** Optional secondary action */
-  onApply2?: () => void
+  /** Optional secondary action — receives the (possibly edited) text */
+  onApply2?: (text: string) => void
   applyLabel2?: string
   placeholder?: string
 }
@@ -32,10 +32,16 @@ export function AIResultBox({
   placeholder = 'Sonuç burada görünecek...',
 }: AIResultBoxProps) {
   const [copied, setCopied] = useState(false)
+  const [editedResult, setEditedResult] = useState(result)
+
+  // Sync edited text when a new stream result arrives
+  useEffect(() => {
+    if (!loading) setEditedResult(result)
+  }, [result, loading])
 
   const handleCopy = () => {
-    if (!result) return
-    navigator.clipboard.writeText(result).then(() => {
+    if (!editedResult) return
+    navigator.clipboard.writeText(editedResult).then(() => {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     })
@@ -80,31 +86,42 @@ export function AIResultBox({
 
   return (
     <div className="border border-line bg-paper-cool/50">
-      {/* Result text */}
-      <div className="relative min-h-[80px] p-4">
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
-          {result}
-          {loading && (
-            <span className="ml-1 inline-block h-4 w-0.5 animate-pulse bg-accent" />
-          )}
-        </p>
-        {loading && !result && (
-          <div className="flex items-center gap-2 text-ink/40">
-            <Loader2 size={14} className="animate-spin" />
-            <span className="font-mono text-[10px] uppercase tracking-wider">
-              Yazıyor...
-            </span>
+      {/* Result text — streaming: read-only p, done: editable textarea */}
+      <div className="relative min-h-[80px]">
+        {loading ? (
+          <div className="p-4">
+            <p className="whitespace-pre-wrap text-sm leading-relaxed text-ink">
+              {result}
+              <span className="ml-1 inline-block h-4 w-0.5 animate-pulse bg-accent" />
+            </p>
+            {!result && (
+              <div className="flex items-center gap-2 text-ink/40">
+                <Loader2 size={14} className="animate-spin" />
+                <span className="font-mono text-[10px] uppercase tracking-wider">
+                  Yazıyor...
+                </span>
+              </div>
+            )}
           </div>
+        ) : (
+          <textarea
+            value={editedResult}
+            onChange={(e) => setEditedResult(e.target.value)}
+            rows={Math.max(4, editedResult.split('\n').length + 1)}
+            className="w-full resize-none bg-transparent p-4 text-sm leading-relaxed text-ink outline-none placeholder:text-ink/30 focus:bg-ink/[0.02]"
+            placeholder={placeholder}
+            spellCheck={false}
+          />
         )}
       </div>
 
       {/* Action bar */}
-      {result && !loading && (
+      {editedResult && !loading && (
         <div className="flex items-center gap-2 border-t border-line p-3">
           {onApply && (
             <button
               type="button"
-              onClick={onApply}
+              onClick={() => onApply(editedResult)}
               className="bg-ink px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:bg-accent"
             >
               {applyLabel}
@@ -113,7 +130,7 @@ export function AIResultBox({
           {onApply2 && (
             <button
               type="button"
-              onClick={onApply2}
+              onClick={() => onApply2(editedResult)}
               className="border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ink/60 transition-colors hover:border-ink hover:text-ink"
             >
               {applyLabel2}

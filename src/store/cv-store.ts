@@ -419,11 +419,19 @@ export const useCVStore = create<CVStore>()(
         })),
 
       // Document operations
+      // NOTE: reset/sample/import REPLACE the current CV in place — they keep
+      // the existing id so the cv-list entry is updated, not orphaned.
       resetCV: () =>
-        set({ cv: createEmptyCV(), lastSavedAt: nowISO() }),
+        set((s) => ({
+          cv: { ...createEmptyCV(), id: s.cv.id, createdAt: s.cv.createdAt },
+          lastSavedAt: nowISO(),
+        })),
 
       loadSample: () =>
-        set({ cv: createSampleCV(), lastSavedAt: nowISO() }),
+        set((s) => ({
+          cv: { ...createSampleCV(), id: s.cv.id, createdAt: s.cv.createdAt },
+          lastSavedAt: nowISO(),
+        })),
 
       loadCV: (cv) =>
         set({ cv: touch(cv), lastSavedAt: nowISO() }),
@@ -443,7 +451,8 @@ export const useCVStore = create<CVStore>()(
                 .join('; '),
             }
           }
-          set({ cv: touch(parsed.data), lastSavedAt: nowISO() })
+          // Replace in place: keep current id so the cv-list entry is updated.
+          set((s) => ({ cv: touch({ ...parsed.data, id: s.cv.id }), lastSavedAt: nowISO() }))
           return { success: true }
         } catch (e) {
           return {

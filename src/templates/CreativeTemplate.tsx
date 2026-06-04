@@ -1,12 +1,13 @@
-import type { CVDocument, SectionKey } from '@/types/cv'
+import type { CVDocument, CVLanguage, SectionKey } from '@/types/cv'
 import { COLOR_THEMES, FONT_FAMILIES } from './shared/tokens'
-import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, PROFICIENCY_LABEL, sectionHasContent } from './shared/helpers'
+import { formatDateRange, getVisibleSections, joinParts, normalizeUrl, proficiencyLabel, SECTION_TITLES, sectionHasContent } from './shared/helpers'
 
 const SIDEBAR_KEYS: SectionKey[] = ['skills', 'languages', 'certificates']
 
 export function CreativeTemplate({ cv }: { cv: CVDocument }) {
   const c = COLOR_THEMES[cv.settings.colorTheme]
   const f = FONT_FAMILIES[cv.settings.fontFamily]
+  const lang = cv.settings.language
   const visible = getVisibleSections(cv)
   const mainKeys = visible.filter((k) => !SIDEBAR_KEYS.includes(k))
   const sideKeys = visible.filter((k) => SIDEBAR_KEYS.includes(k))
@@ -15,7 +16,7 @@ export function CreativeTemplate({ cv }: { cv: CVDocument }) {
   const sidebarBg = c.surfaceAlt
 
   return (
-    <article style={{ fontFamily: f.body, color: c.text, display: 'flex', minHeight: '100%', background: c.surface }}>
+    <article lang={lang} style={{ fontFamily: f.body, color: c.text, display: 'flex', minHeight: '100%', background: c.surface }}>
       {/* Left panel */}
       <aside style={{ width: '220px', flexShrink: 0, background: sidebarBg, padding: '28px 20px' }}>
         {/* Avatar — photo if available, else initials */}
@@ -51,7 +52,7 @@ export function CreativeTemplate({ cv }: { cv: CVDocument }) {
         {sideKeys.map((key) => !sectionHasContent(cv, key) ? null : (
           <div key={key} style={{ marginBottom: '16px' }}>
             <div style={{ fontSize: '9.5px', letterSpacing: '0.18em', textTransform: 'uppercase', color: c.primary, borderBottom: `1px solid ${c.divider}`, paddingBottom: '3px', marginBottom: '8px' }}>
-              {({ skills: 'Yetenekler', languages: 'Diller', certificates: 'Sertifikalar' } as Record<string, string>)[key]}
+              {SECTION_TITLES[lang][key]}
             </div>
             {key === 'skills' && cv.skills.map((s) => (
               <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '5px' }}>
@@ -61,7 +62,7 @@ export function CreativeTemplate({ cv }: { cv: CVDocument }) {
             ))}
             {key === 'languages' && cv.languages.map((l) => (
               <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11px', marginBottom: '3px' }}>
-                <span>{l.name}</span><span style={{ color: c.muted }}>{PROFICIENCY_LABEL[l.proficiency]}</span>
+                <span>{l.name}</span><span style={{ color: c.muted }}>{proficiencyLabel(l.proficiency, lang)}</span>
               </div>
             ))}
             {key === 'certificates' && cv.certificates.map((cert) => (
@@ -77,7 +78,7 @@ export function CreativeTemplate({ cv }: { cv: CVDocument }) {
       {/* Main content */}
       <main style={{ flex: 1, padding: '28px 28px' }}>
         {mainKeys.map((key) => !sectionHasContent(cv, key) ? null : (
-          <CreativeSection key={key} sectionKey={key} cv={cv} c={c} f={f} />
+          <CreativeSection key={key} sectionKey={key} cv={cv} c={c} f={f} lang={lang} />
         ))}
       </main>
     </article>
@@ -92,19 +93,20 @@ function SectionTitle({ children, c, f }: { children: React.ReactNode; c: any; f
   )
 }
 
-function CreativeSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any }) {
+function CreativeSection({ sectionKey, cv, c, f, lang }: { sectionKey: SectionKey; cv: CVDocument; c: any; f: any; lang: CVLanguage }) {
+  const t = (key: SectionKey, tr: string) => (lang === 'en' ? SECTION_TITLES.en[key] : tr)
   if (sectionKey === 'summary') return (
-    <div><SectionTitle c={c} f={f}>Özet</SectionTitle>
+    <div><SectionTitle c={c} f={f}>{t('summary', 'Özet')}</SectionTitle>
       <p style={{ fontSize: '12px', lineHeight: 1.7, color: c.text }}>{cv.summary.content}</p>
     </div>
   )
   if (sectionKey === 'experience') return (
-    <div><SectionTitle c={c} f={f}>Deneyim</SectionTitle>
+    <div><SectionTitle c={c} f={f}>{t('experience', 'Deneyim')}</SectionTitle>
       {cv.experience.map((e) => (
         <div key={e.id} className="cv-item" style={{ marginBottom: '13px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
             <span style={{ fontSize: '13px', fontWeight: 600 }}>{e.position}</span>
-            <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</span>
+            <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</span>
           </div>
           <p style={{ fontSize: '11px', color: c.primary, fontStyle: 'italic', margin: '2px 0 4px' }}>{joinParts([e.company, e.location])}</p>
           {e.description && <p style={{ fontSize: '11.5px', lineHeight: 1.65, color: c.text, margin: '0 0 3px' }}>{e.description}</p>}
@@ -114,12 +116,12 @@ function CreativeSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv:
     </div>
   )
   if (sectionKey === 'education') return (
-    <div><SectionTitle c={c} f={f}>Eğitim</SectionTitle>
+    <div><SectionTitle c={c} f={f}>{t('education', 'Eğitim')}</SectionTitle>
       {cv.education.map((e) => (
         <div key={e.id} className="cv-item" style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
             <span style={{ fontSize: '12.5px', fontWeight: 600 }}>{e.institution}</span>
-            <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate)}</span>
+            <span style={{ fontSize: '10px', color: c.muted }}>{formatDateRange(e.startDate, e.current ? null : e.endDate, lang)}</span>
           </div>
           <p style={{ fontSize: '11px', color: c.primary, fontStyle: 'italic', margin: '2px 0' }}>{joinParts([e.degree, e.field])}</p>
         </div>
@@ -127,7 +129,7 @@ function CreativeSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv:
     </div>
   )
   if (sectionKey === 'projects') return (
-    <div><SectionTitle c={c} f={f}>Projeler</SectionTitle>
+    <div><SectionTitle c={c} f={f}>{t('projects', 'Projeler')}</SectionTitle>
       {cv.projects.map((p) => (
         <div key={p.id} className="cv-item" style={{ marginBottom: '10px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -141,7 +143,7 @@ function CreativeSection({ sectionKey, cv, c, f }: { sectionKey: SectionKey; cv:
     </div>
   )
   if (sectionKey === 'references') return (
-    <div><SectionTitle c={c} f={f}>Referanslar</SectionTitle>
+    <div><SectionTitle c={c} f={f}>{t('references', 'Referanslar')}</SectionTitle>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
         {cv.references.map((r) => (
           <div key={r.id} style={{ fontSize: '11px' }}>

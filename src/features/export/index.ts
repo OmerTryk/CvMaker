@@ -1,3 +1,5 @@
 export { ExportButton } from './ExportButton'
 export { PrintableCV } from './PrintableCV'
 export { usePDFExport } from './usePDFExport'
+export { WordExportButton } from './WordExportButton'
+export { useWordExport } from './useWordExport'
