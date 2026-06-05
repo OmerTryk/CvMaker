@@ -32,7 +32,7 @@ export function ApiKeySetup() {
   const [testError, setTestError] = useState('')
 
   const config = GEMINI_CONFIG
-  const isValid = isValidKeyFormat(draft, config.keyPrefix)
+  const isValid = isValidKeyFormat(draft)
   const saved = draft === apiKey && !!apiKey
 
   const handleSave = () => {
@@ -164,7 +164,7 @@ export function ApiKeySetup() {
 
             {draft && !isValid && (
               <p className="font-mono text-[10px] uppercase tracking-wider text-accent">
-                Anahtar "AIzaSy" ile başlamalı
+                Anahtar "AIza..." veya "AQ...." ile başlamalı
               </p>
             )}
 

@@ -407,6 +407,7 @@ function extractErrorMessage(body: unknown): string {
   return String(err?.message ?? b?.message ?? 'Bilinmeyen hata')
 }
 
-export function isValidKeyFormat(key: string, prefix: string): boolean {
-  return key.trim().startsWith(prefix) && key.trim().length > 10
+export function isValidKeyFormat(key: string): boolean {
+  const trimmed = key.trim()
+  return (trimmed.startsWith('AIza') || trimmed.startsWith('AQ.')) && trimmed.length > 10
 }

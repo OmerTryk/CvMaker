@@ -20,7 +20,7 @@ export interface ProviderConfig {
   label: string
   baseUrl: string
   keyPlaceholder: string
-  keyPrefix: string
+
   consoleUrl: string
   consoleName: string
   freeNote: string
@@ -30,8 +30,7 @@ export interface ProviderConfig {
 export const GEMINI_CONFIG: ProviderConfig = {
   label: 'Google Gemini',
   baseUrl: 'https://generativelanguage.googleapis.com/v1beta/openai',
-  keyPlaceholder: 'AIzaSy...',
-  keyPrefix: 'AIzaSy',
+  keyPlaceholder: 'AIza... veya AQ....',
   consoleUrl: 'https://aistudio.google.com/apikey',
   consoleName: 'Google AI Studio',
   freeNote: 'Ücretsiz · Kredi kartı gerekmez · 1000 istek/gün',
