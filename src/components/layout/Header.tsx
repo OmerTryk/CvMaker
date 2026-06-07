@@ -28,7 +28,7 @@ export function Header({ onHelpOpen, onAIOpen, dark, onToggleDark }: HeaderProps
       <div className="container-prose flex items-center justify-between py-4 md:py-5">
 
         {/* Logo */}
-        <Link to="/" className="group flex items-center" aria-label="CTRLCV anasayfa">
+        <Link to="/" data-tour="home-logo" className="group flex items-center" aria-label="CTRLCV anasayfa">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 250 44"
@@ -47,7 +47,7 @@ export function Header({ onHelpOpen, onAIOpen, dark, onToggleDark }: HeaderProps
 
         <div className="flex items-center gap-1 sm:gap-2">
           {/* Desktop Nav — hidden on mobile */}
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav data-tour="home-nav" className="hidden items-center gap-1 md:flex">
             {navItems.map((item) => (
               <NavLink
                 key={item.to}
@@ -74,6 +74,7 @@ export function Header({ onHelpOpen, onAIOpen, dark, onToggleDark }: HeaderProps
 
           {/* AI button */}
           <button
+            data-tour="ai-btn"
             onClick={onAIOpen}
             title="AI Asistan"
             aria-label="AI Asistan panelini aç"
@@ -90,6 +91,7 @@ export function Header({ onHelpOpen, onAIOpen, dark, onToggleDark }: HeaderProps
 
           {/* Dark mode toggle */}
           <button
+            data-tour="dark-mode"
             onClick={onToggleDark}
             title={dark ? 'Açık moda geç' : 'Koyu moda geç'}
             aria-label={dark ? 'Açık mod' : 'Koyu mod'}
@@ -103,6 +105,7 @@ export function Header({ onHelpOpen, onAIOpen, dark, onToggleDark }: HeaderProps
 
           {/* Help button — hidden on mobile */}
           <button
+            data-tour="help-btn"
             onClick={onHelpOpen}
             title={`Yardım (${META_LABEL}+/)`}
             aria-label="Klavye kısayollarını göster"

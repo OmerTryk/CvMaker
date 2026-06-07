@@ -10,7 +10,11 @@ import {
   Edit3,
   Eye,
   FileUp,
+  HelpCircle,
 } from 'lucide-react'
+import { useTour } from '@/features/help/useTour'
+import { TourOverlay } from '@/features/help/TourOverlay'
+import { EDITOR_TOUR } from '@/features/help/tourSteps'
 import { useCVStore } from '@/store'
 import { EditorShell } from '@/features/editor'
 import { WelcomeBanner } from '@/features/editor/WelcomeBanner'
@@ -46,6 +50,7 @@ export function EditorPage() {
   const importJSON = useCVStore((s) => s.importJSON)
 
   const isEmpty = useIsCVEmpty()
+  const tour = useTour(EDITOR_TOUR)
   const [mobileView, setMobileView] = useState<MobileView>('editor')
   const [toast, setToast] = useState<{ type: 'ok' | 'err'; msg: string } | null>(null)
   const [pdfModalOpen, setPdfModalOpen] = useState(false)
@@ -152,6 +157,7 @@ export function EditorPage() {
       <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="flex-1">
           <input
+            data-tour="editor-title"
             value={title}
             onChange={(e) => updateTitle(e.target.value)}
             className="mt-2 w-full max-w-xl border-b border-transparent bg-transparent font-display text-3xl font-light tracking-tight text-ink outline-none transition-colors duration-200 hover:border-line focus:border-accent md:text-4xl"
@@ -159,14 +165,23 @@ export function EditorPage() {
           />
         </div>
 
-        <div className="flex shrink-0 items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-ink/50">
+        <div className="flex shrink-0 items-center gap-3 font-mono text-[10px] uppercase tracking-widest text-ink/50">
+          <button
+            type="button"
+            onClick={tour.start}
+            className="inline-flex items-center gap-1.5 border border-line px-3 py-2 text-ink/60 transition-colors hover:border-accent hover:text-accent"
+            title="Nasıl kullanılır?"
+          >
+            <HelpCircle size={13} />
+            <span className="hidden md:inline">Nasıl kullanılır?</span>
+          </button>
           <Save size={12} className="text-accent" />
           <span>{formatRelative(lastSavedAt)}</span>
         </div>
       </div>
 
       {/* TOOLBAR */}
-      <div className="sticky top-0 z-30 mb-6 flex flex-wrap items-center gap-1 border border-line bg-paper/95 px-3 py-2 backdrop-blur-sm">
+      <div data-tour="editor-toolbar" className="sticky top-0 z-30 mb-6 flex flex-wrap items-center gap-1 border border-line bg-paper/95 px-3 py-2 backdrop-blur-sm">
         <ToolbarButton
           onClick={handleLoadSample}
           icon={<Sparkles size={12} />}
@@ -285,6 +300,20 @@ export function EditorPage() {
           Sıfırla
         </ToolbarButton>
       </div>
+
+      {/* Editor Tour */}
+      {tour.active && tour.current && (
+        <TourOverlay
+          step={tour.current}
+          stepIndex={tour.stepIndex}
+          totalSteps={tour.totalSteps}
+          isFirst={tour.isFirst}
+          isLast={tour.isLast}
+          onNext={tour.next}
+          onPrev={tour.prev}
+          onClose={tour.stop}
+        />
+      )}
 
       {/* PDF Import Modal */}
       {pdfModalOpen && (

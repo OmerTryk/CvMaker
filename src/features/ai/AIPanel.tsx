@@ -1,7 +1,10 @@
-import { useState, useEffect } from 'react'
-import { X, Sparkles, FileText, RefreshCw, Lightbulb, ScanSearch, Languages } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { X, Sparkles, FileText, RefreshCw, Lightbulb, ScanSearch, Languages, HelpCircle } from 'lucide-react'
 import { useAIStore } from '@/store'
 import { ApiKeySetup } from './ApiKeySetup'
+import { useTour } from '@/features/help/useTour'
+import { TourOverlay } from '@/features/help/TourOverlay'
+import { AI_TOUR } from '@/features/help/tourSteps'
 import { SummaryAI } from './SummaryAI'
 import { ExperienceAI } from './ExperienceAI'
 import { AchievementAI } from './AchievementAI'
@@ -57,9 +60,12 @@ const FEATURES: Feature[] = [
   },
 ]
 
+const TOUR_KEY = 'ctrlcv_ai_toured'
+
 export function AIPanel() {
   const { panelOpen, apiKey, closePanel } = useAIStore()
   const [activeFeature, setActiveFeature] = useState<FeatureKey | null>(null)
+  const tour = useTour(AI_TOUR)
 
   // Close on Escape
   useEffect(() => {
@@ -71,10 +77,24 @@ export function AIPanel() {
     return () => window.removeEventListener('keydown', handler)
   }, [panelOpen, closePanel])
 
-  // Reset active feature when panel closes
+  // Reset active feature + tour when panel closes
   useEffect(() => {
-    if (!panelOpen) setActiveFeature(null)
-  }, [panelOpen])
+    if (!panelOpen) { setActiveFeature(null); tour.stop() }
+  }, [panelOpen, tour.stop])
+
+  // İlk açılışta otomatik tur başlat
+  useEffect(() => {
+    if (!panelOpen) return
+    if (localStorage.getItem(TOUR_KEY)) return
+    const t = setTimeout(() => tour.start(), 600)
+    return () => clearTimeout(t)
+  }, [panelOpen]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Tur kapanınca localStorage'a kaydet
+  const handleTourClose = useCallback(() => {
+    localStorage.setItem(TOUR_KEY, '1')
+    tour.stop()
+  }, [tour])
 
   const active = FEATURES.find((f) => f.key === activeFeature)
 
@@ -110,21 +130,31 @@ export function AIPanel() {
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={closePanel}
-            aria-label="Kapat"
-            className="flex h-8 w-8 items-center justify-center text-ink/40 transition-colors hover:bg-paper-warm hover:text-ink"
-          >
-            <X size={16} />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={tour.start}
+              className="inline-flex items-center gap-1.5 border border-line px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-ink/60 transition-colors hover:border-accent hover:text-accent"
+            >
+              <HelpCircle size={11} strokeWidth={1.5} />
+              Nasıl çalışır?
+            </button>
+            <button
+              type="button"
+              onClick={closePanel}
+              aria-label="Kapat"
+              className="flex h-8 w-8 items-center justify-center text-ink/40 transition-colors hover:bg-paper-warm hover:text-ink"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </header>
 
         {/* Scrollable content */}
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           <div className="flex flex-col gap-0 divide-y divide-line">
             {/* API Key */}
-            <div className="p-5">
+            <div data-tour="ai-key" className="p-5">
               <ApiKeySetup />
             </div>
 
@@ -160,6 +190,7 @@ export function AIPanel() {
                 {FEATURES.map((f) => (
                   <button
                     key={f.key}
+                    data-tour={`ai-feat-${f.key}`}
                     type="button"
                     onClick={() => setActiveFeature(f.key)}
                     className="group flex items-start gap-4 px-5 py-5 text-left transition-colors hover:bg-paper-warm"
@@ -190,6 +221,20 @@ export function AIPanel() {
           </p>
         </footer>
       </aside>
+
+      {/* AI Panel Tour */}
+      {tour.active && tour.current && (
+        <TourOverlay
+          step={tour.current}
+          stepIndex={tour.stepIndex}
+          totalSteps={tour.totalSteps}
+          isFirst={tour.isFirst}
+          isLast={tour.isLast}
+          onNext={tour.next}
+          onPrev={tour.prev}
+          onClose={handleTourClose}
+        />
+      )}
     </>
   )
 }

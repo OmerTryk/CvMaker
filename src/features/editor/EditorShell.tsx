@@ -44,6 +44,7 @@ export function EditorShell() {
     <div className="flex flex-col gap-4">
       {/* Always-shown identity sections */}
       <SectionCard
+        headerTourId="editor-personal"
         title="Kişisel Bilgiler"
         description="ad, unvan, fotoğraf"
         required
@@ -51,18 +52,25 @@ export function EditorShell() {
         <PersonalSection />
       </SectionCard>
 
-      <SectionCard title="İletişim" description="e-posta, telefon, sosyal" required>
+      <SectionCard
+        headerTourId="editor-contact"
+        title="İletişim"
+        description="e-posta, telefon, sosyal"
+        required
+      >
         <ContactSection />
       </SectionCard>
 
       {/* Configurable sections — rendered in user's preferred order */}
-      {cv.sectionOrder.map((key) => {
+      {cv.sectionOrder.map((key, index) => {
         const Component = SECTION_COMPONENTS[key]
         const isHidden = cv.hiddenSections.includes(key)
 
         return (
           <SectionCard
             key={key}
+            headerTourId={index === 0 ? 'editor-sections' : undefined}
+            toggleTourId={index === 0 ? 'editor-section-toggle' : undefined}
             title={SECTION_LABELS[key]}
             count={counts[key]}
             hidden={isHidden}

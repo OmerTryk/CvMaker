@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Plus, Edit3, Copy, Trash2, Eye, FileText } from 'lucide-react'
+import { Plus, Edit3, Copy, Trash2, Eye, FileText, HelpCircle } from 'lucide-react'
 import { useCVStore } from '@/store'
 import { useCVListStore, THEME_COLORS, TEMPLATE_LABELS, type CVListItem } from '@/store/cv-list-store'
 import { createEmptyCV } from '@/lib/seed'
@@ -8,10 +8,14 @@ import { createId } from '@/utils/id'
 import { nowISO } from '@/utils/date'
 import { cn } from '@/lib/utils'
 import type { CVDocument } from '@/types/cv'
+import { useTour } from '@/features/help/useTour'
+import { TourOverlay } from '@/features/help/TourOverlay'
+import { DASHBOARD_TOUR } from '@/features/help/tourSteps'
 
 export function DashboardPage() {
   const navigate    = useNavigate()
   const cv          = useCVStore((s) => s.cv)
+  const tour        = useTour(DASHBOARD_TOUR)
   const loadCV      = useCVStore((s) => s.loadCV)
 
   const list          = useCVListStore((s) => s.list)
@@ -119,23 +123,35 @@ export function DashboardPage() {
             CV'lerim
           </h1>
         </div>
-        <button
-          type="button"
-          onClick={handleCreate}
-          className="inline-flex items-center gap-2 bg-ink px-5 py-3 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:bg-accent"
-        >
-          <Plus size={14} />
-          Yeni CV
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={tour.start}
+            className="inline-flex items-center gap-1.5 border border-line px-4 py-3 font-mono text-[10px] uppercase tracking-widest text-ink/60 transition-colors hover:border-accent hover:text-accent"
+          >
+            <HelpCircle size={13} />
+            Nasıl kullanılır?
+          </button>
+          <button
+            type="button"
+            data-tour="new-cv-btn"
+            onClick={handleCreate}
+            className="inline-flex items-center gap-2 bg-ink px-5 py-3 font-mono text-[10px] uppercase tracking-widest text-paper transition-colors hover:bg-accent"
+          >
+            <Plus size={14} />
+            Yeni CV
+          </button>
+        </div>
       </div>
 
       {/* CV Grid */}
       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {displayList.map((item) => (
+        {displayList.map((item, index) => (
           <CVCard
             key={item.id}
             item={item}
             isActive={item.id === activeId}
+            isTourTarget={index === 0}
             onOpen={() => handleOpen(item.id)}
             onPreview={() => handlePreview(item.id)}
             onDuplicate={() => handleDuplicate(item)}
@@ -155,6 +171,19 @@ export function DashboardPage() {
           </span>
         </button>
       </div>
+
+      {tour.active && tour.current && (
+        <TourOverlay
+          step={tour.current}
+          stepIndex={tour.stepIndex}
+          totalSteps={tour.totalSteps}
+          isFirst={tour.isFirst}
+          isLast={tour.isLast}
+          onNext={tour.next}
+          onPrev={tour.prev}
+          onClose={tour.stop}
+        />
+      )}
 
       {/* Empty state */}
       {list.length === 0 && (
@@ -184,6 +213,7 @@ export function DashboardPage() {
 function CVCard({
   item,
   isActive,
+  isTourTarget = false,
   onOpen,
   onPreview,
   onDuplicate,
@@ -191,6 +221,7 @@ function CVCard({
 }: {
   item: CVListItem
   isActive: boolean
+  isTourTarget?: boolean
   onOpen: () => void
   onPreview: () => void
   onDuplicate: () => void
@@ -213,6 +244,7 @@ function CVCard({
 
   return (
     <div
+      data-tour={isTourTarget ? 'cv-card' : undefined}
       className={cn(
         'group flex flex-col border transition-all duration-200',
         isActive ? 'border-accent' : 'border-line hover:border-ink/30',
@@ -262,6 +294,7 @@ function CVCard({
         <div className="mt-4 flex items-center gap-1">
           <button
             type="button"
+            data-tour={isTourTarget ? 'cv-edit' : undefined}
             onClick={onOpen}
             className="inline-flex items-center gap-1.5 bg-ink px-3 py-1.5 font-mono text-[9px] uppercase tracking-widest text-paper transition-colors hover:bg-accent"
           >
@@ -270,13 +303,17 @@ function CVCard({
           </button>
           <button
             type="button"
+            data-tour={isTourTarget ? 'cv-preview' : undefined}
             onClick={onPreview}
             className="inline-flex items-center gap-1.5 border border-line px-3 py-1.5 font-mono text-[9px] uppercase tracking-widest text-ink/60 transition-colors hover:border-ink hover:text-ink"
           >
             <Eye size={11} />
             Önizle
           </button>
-          <div className="ml-auto flex gap-1">
+          <div
+            data-tour={isTourTarget ? 'cv-actions' : undefined}
+            className="ml-auto flex gap-1"
+          >
             <button
               type="button"
               onClick={onDuplicate}

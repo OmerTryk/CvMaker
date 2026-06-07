@@ -1,5 +1,11 @@
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, Sparkles, FileText, Layers } from 'lucide-react'
+import { useEffect, useCallback } from 'react'
+import { ArrowUpRight, Sparkles, FileText, Layers, HelpCircle } from 'lucide-react'
+import { useTour } from '@/features/help/useTour'
+import { TourOverlay } from '@/features/help/TourOverlay'
+import { HOME_TOUR } from '@/features/help/tourSteps'
+
+const TOUR_KEY = 'ctrlcv_home_toured'
 
 const features = [
   {
@@ -23,6 +29,21 @@ const features = [
 ]
 
 export function HomePage() {
+  const tour = useTour(HOME_TOUR)
+
+  // İlk girişte otomatik başlat (animasyonların bitmesi için kısa bekleme)
+  useEffect(() => {
+    if (!localStorage.getItem(TOUR_KEY)) {
+      const t = setTimeout(() => tour.start(), 900)
+      return () => clearTimeout(t)
+    }
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleClose = useCallback(() => {
+    localStorage.setItem(TOUR_KEY, '1')
+    tour.stop()
+  }, [tour])
+
   return (
     <div className="relative overflow-hidden">
       {/* HERO */}
@@ -49,6 +70,7 @@ export function HomePage() {
             </p>
 
             <div
+              data-tour="home-cta"
               className="mt-12 flex flex-wrap items-center gap-4 opacity-0 animate-fade-up"
               style={{ animationDelay: '360ms' }}
             >
@@ -62,6 +84,14 @@ export function HomePage() {
               <Link to="/preview" className="btn-ghost">
                 Şablonları Gör
               </Link>
+              <button
+                type="button"
+                onClick={tour.start}
+                className="inline-flex items-center gap-1.5 border border-line px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-ink/60 transition-colors hover:border-accent hover:text-accent"
+              >
+                <HelpCircle size={12} strokeWidth={1.5} />
+                Nasıl çalışır?
+              </button>
             </div>
           </div>
 
@@ -98,7 +128,7 @@ export function HomePage() {
           </span>
         </div>
 
-        <div className="grid gap-px bg-line sm:grid-cols-3">
+        <div data-tour="home-features" className="grid gap-px bg-line sm:grid-cols-3">
           {features.map((f, i) => (
             <article
               key={f.title}
@@ -122,6 +152,19 @@ export function HomePage() {
           ))}
         </div>
       </section>
+
+      {tour.active && tour.current && (
+        <TourOverlay
+          step={tour.current}
+          stepIndex={tour.stepIndex}
+          totalSteps={tour.totalSteps}
+          isFirst={tour.isFirst}
+          isLast={tour.isLast}
+          onNext={tour.next}
+          onPrev={tour.prev}
+          onClose={handleClose}
+        />
+      )}
     </div>
   )
 }

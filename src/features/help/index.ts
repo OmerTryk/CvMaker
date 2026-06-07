@@ -1,1 +1,5 @@
 export { HelpOverlay } from './HelpOverlay'
+export { TourOverlay } from './TourOverlay'
+export { useTour } from './useTour'
+export type { TourStep } from './tourSteps'
+export { EDITOR_TOUR, AI_TOUR, DASHBOARD_TOUR } from './tourSteps'

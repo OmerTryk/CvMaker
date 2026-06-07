@@ -11,11 +11,11 @@ interface SectionCardProps {
   onToggleHidden?: () => void
   defaultOpen?: boolean
   children: ReactNode
-  /**
-   * If true, no toggle button — section is always shown.
-   * Used for required sections like "Personal Info".
-   */
   required?: boolean
+  /** data-tour id for the section header bar (used by guided tour) */
+  headerTourId?: string
+  /** data-tour id for the visibility toggle button area */
+  toggleTourId?: string
 }
 
 export function SectionCard({
@@ -27,6 +27,8 @@ export function SectionCard({
   defaultOpen = true,
   children,
   required,
+  headerTourId,
+  toggleTourId,
 }: SectionCardProps) {
   const [open, setOpen] = useState(defaultOpen)
 
@@ -37,7 +39,7 @@ export function SectionCard({
         hidden && 'opacity-50',
       )}
     >
-      <header className="flex items-center justify-between border-b border-line/60 px-6 py-4">
+      <header data-tour={headerTourId} className="flex items-center justify-between border-b border-line/60 px-6 py-4">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -56,7 +58,7 @@ export function SectionCard({
           )}
         </button>
 
-        <div className="flex items-center gap-1">
+        <div data-tour={toggleTourId} className="flex items-center gap-1">
           {!required && onToggleHidden && (
             <IconButton
               label={hidden ? 'Bölümü göster' : 'Bölümü gizle'}

@@ -218,7 +218,7 @@ export function ApiKeySetup() {
 
       {/* ── Model Seçici (anahtar varsa) ─────────────────── */}
       {apiKey && (
-        <div className="flex flex-col gap-2 border-t border-line pt-4">
+        <div data-tour="ai-model" className="flex flex-col gap-2 border-t border-line pt-4">
           <p className="font-mono text-[10px] uppercase tracking-widest text-ink/50">
             Model
           </p>

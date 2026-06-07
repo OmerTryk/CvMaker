@@ -124,7 +124,7 @@ export function JobFinderPanel() {
     <div className="flex gap-6">
 
       {/* ── Left sidebar: filters ──────────────────────────────── */}
-      <aside className="hidden w-60 shrink-0 lg:block">
+      <aside data-tour="jobs-filters" className="hidden w-60 shrink-0 lg:block">
         <div className="sticky top-6 overflow-hidden rounded-xl border border-line bg-paper">
 
           {/* Header — CV selector */}
@@ -221,7 +221,7 @@ export function JobFinderPanel() {
       </aside>
 
       {/* ── Main content area ──────────────────────────────────── */}
-      <div className="flex min-w-0 flex-1 flex-col gap-3">
+      <div data-tour="jobs-results" className="flex min-w-0 flex-1 flex-col gap-3">
 
         {/* Loading skeleton */}
         {listingLoading && listings.length === 0 && (

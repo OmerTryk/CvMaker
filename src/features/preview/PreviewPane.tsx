@@ -18,10 +18,16 @@ export function PreviewPane({ showPicker = true }: PreviewPaneProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      {showPicker && <TemplatePicker />}
-      <PreviewCanvas>
-        <TemplateRenderer cv={cv} />
-      </PreviewCanvas>
+      {showPicker && (
+        <div data-tour="editor-template">
+          <TemplatePicker />
+        </div>
+      )}
+      <div data-tour="editor-preview">
+        <PreviewCanvas>
+          <TemplateRenderer cv={cv} />
+        </PreviewCanvas>
+      </div>
     </div>
   )
 }

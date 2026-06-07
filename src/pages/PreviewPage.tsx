@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowLeft, Edit3 } from 'lucide-react'
+import { ArrowLeft, Edit3, HelpCircle } from 'lucide-react'
 import { useCVStore } from '@/store'
 import { TemplateRenderer } from '@/templates'
 import { TEMPLATE_LIST, A4 } from '@/templates/shared/tokens'
@@ -8,6 +8,11 @@ import { ExportButton, WordExportButton } from '@/features/export'
 import { Paginator } from '@/components/ui'
 import { useSmartPageBreaks } from '@/hooks/useSmartPageBreaks'
 import { cn } from '@/lib/utils'
+import { useTour } from '@/features/help/useTour'
+import { TourOverlay } from '@/features/help/TourOverlay'
+import { PREVIEW_TOUR } from '@/features/help/tourSteps'
+
+const TOUR_KEY = 'ctrlcv_preview_toured'
 
 const GRAD_BOT = 40
 
@@ -58,6 +63,20 @@ export function PreviewPage() {
 
   const activeTpl = TEMPLATE_LIST.find((t) => t.key === template)
 
+  const tour = useTour(PREVIEW_TOUR)
+
+  // İlk ziyarette otomatik tur başlat
+  useEffect(() => {
+    if (localStorage.getItem(TOUR_KEY)) return
+    const t = setTimeout(() => tour.start(), 700)
+    return () => clearTimeout(t)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleTourClose = useCallback(() => {
+    localStorage.setItem(TOUR_KEY, '1')
+    tour.stop()
+  }, [tour])
+
   return (
     <div className="container-prose py-10 md:py-14">
       <style>{`
@@ -77,7 +96,15 @@ export function PreviewPage() {
             {cv.title || 'CV Önizleme'}
           </h1>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div data-tour="preview-actions" className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={tour.start}
+            className="inline-flex items-center gap-1.5 border border-line px-3 py-2 font-mono text-[10px] uppercase tracking-widest text-ink/60 transition-colors hover:border-accent hover:text-accent"
+          >
+            <HelpCircle size={12} strokeWidth={1.5} />
+            Nasıl çalışır?
+          </button>
           <Link
             to="/editor"
             className="inline-flex items-center gap-2 border border-line px-4 py-2 font-mono text-[10px] uppercase tracking-widest text-ink/60 transition-colors hover:border-ink hover:bg-ink hover:text-paper"
@@ -90,7 +117,7 @@ export function PreviewPage() {
       </div>
 
       {/* Template picker — always open */}
-      <div className="mb-8 border border-line">
+      <div data-tour="preview-templates" className="mb-8 border border-line">
         <div className="border-b border-line px-5 py-3">
           <div className="flex items-center gap-4">
             <span className="font-mono text-[10px] uppercase tracking-widest text-ink/50">
@@ -157,7 +184,7 @@ export function PreviewPage() {
       </div>
 
       {/* ── Paginator + A4 viewport ── */}
-      <div className="flex flex-col items-center gap-5">
+      <div data-tour="preview-canvas" className="flex flex-col items-center gap-5">
         {pageCount > 1 && (
           <Paginator
             current={currentPage} total={pageCount}
@@ -255,6 +282,19 @@ export function PreviewPage() {
           <ArrowLeft size={14} /> Editöre dön
         </Link>
       </div>
+
+      {tour.active && tour.current && (
+        <TourOverlay
+          step={tour.current}
+          stepIndex={tour.stepIndex}
+          totalSteps={tour.totalSteps}
+          isFirst={tour.isFirst}
+          isLast={tour.isLast}
+          onNext={tour.next}
+          onPrev={tour.prev}
+          onClose={handleTourClose}
+        />
+      )}
     </div>
   )
 }
