@@ -28,6 +28,6 @@ export const safeStorage = {
     }
   },
   removeItem: (name: string): void => {
-    try { localStorage.removeItem(name) } catch {}
+    try { localStorage.removeItem(name) } catch { /* ignore */ }
   },
 }

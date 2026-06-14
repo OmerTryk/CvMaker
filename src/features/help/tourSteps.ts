@@ -152,6 +152,13 @@ export const AI_TOUR: TourStep[] = [
     noScroll: true,
   },
   {
+    selector: '[data-tour="ai-feat-coverletter"]',
+    title: 'Ön Yazı Oluştur',
+    body: 'CV\'ne ve yapıştırdığın iş ilanına göre hedef şirkete özel bir ön yazı (cover letter) yazar. Tonu seçebilir, metni düzenleyip .txt olarak indirebilirsin.',
+    position: 'left',
+    noScroll: true,
+  },
+  {
     selector: '[data-tour="ai-feat-analysis"]',
     title: 'CV\'mi Analiz Et',
     body: 'CV\'nin güçlü ve zayıf yönlerini listeler, etki skoru verir ve somut geliştirme önerileri sunar.',

@@ -48,8 +48,8 @@ function LanguageItem({ item }: { item: Language }) {
       />
       <Select
         value={item.proficiency}
-        onChange={(e) =>
-          update(item.id, { proficiency: e.target.value as LanguageProficiency })
+        onChange={(value) =>
+          update(item.id, { proficiency: value as LanguageProficiency })
         }
         options={PROFICIENCY_OPTIONS}
         className="border-b-0 py-1.5 text-sm"

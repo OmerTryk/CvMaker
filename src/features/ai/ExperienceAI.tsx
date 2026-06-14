@@ -37,8 +37,8 @@ export function ExperienceAI() {
 
       <Select
         value={selectedId}
-        onChange={(e) => {
-          setSelectedId(e.target.value)
+        onChange={(value) => {
+          setSelectedId(value)
           reset()
         }}
         options={experience.map((e) => ({

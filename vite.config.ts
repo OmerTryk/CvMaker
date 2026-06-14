@@ -11,8 +11,10 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5173,
-    open: true,
+    // Honor a PORT env var (e.g. preview tooling assigns a free port); fall
+    // back to 5173 for normal local dev. Only auto-open when not under PORT.
+    port: Number(process.env.PORT) || 5173,
+    open: !process.env.PORT,
   },
   build: {
     // Raise the warning limit slightly — we know gzip is 147 kB which is fine

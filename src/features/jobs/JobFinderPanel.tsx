@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { Briefcase, Search, Loader2, AlertCircle, RefreshCw, Sparkles, MapPin, FileText, ChevronDown, Info, X } from 'lucide-react'
+import { Briefcase, Search, Loader2, AlertCircle, RefreshCw, Sparkles, MapPin, FileText, Info, X } from 'lucide-react'
 import { useJobSearch } from './useJobSearch'
 import { JobCard } from './JobCard'
 import { useJobSearchStore } from '@/store/job-search-store'
 import { useAIStore } from '@/store/ai-store'
+import { Select } from '@/components/ui'
 
 export function JobFinderPanel() {
   const { searchJobs, loadMoreCompanies, cv, activeCV, cvList, activeId } = useJobSearch()
@@ -134,28 +135,20 @@ export function JobFinderPanel() {
             {cvList.length > 1 ? (
               <div className="flex flex-col gap-1">
                 <label className="text-xs font-medium text-ink/50">CV Seç</label>
-                <div className="relative">
-                  <FileText size={12} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-ink/30" />
-                  <select
-                    value={effectiveCVId}
-                    onChange={(e) => setSelectedCVId(e.target.value === activeId ? null : e.target.value)}
-                    className="w-full appearance-none rounded-lg border border-line bg-paper-warm/40 py-2 pl-8 pr-7 text-sm text-ink outline-none focus:border-accent focus:bg-paper"
-                  >
-                    {cvList.map((item) => {
-                      // Active CV: use activeCV (live cv-store data) so the label reflects
-                      // the globally active CV regardless of which CV is selected for job search
-                      const name = item.id === activeId
-                        ? (activeCV.personal.fullName || activeCV.personal.jobTitle || 'Aktif CV')
-                        : (item.fullName || item.title || item.jobTitle || 'İsimsiz CV')
-                      return (
-                        <option key={item.id} value={item.id}>
-                          {name}{item.id === activeId ? ' ★' : ''}
-                        </option>
-                      )
-                    })}
-                  </select>
-                  <ChevronDown size={12} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-ink/30" />
-                </div>
+                <Select
+                  value={effectiveCVId}
+                  onChange={(value) => setSelectedCVId(value === activeId ? null : value)}
+                  icon={<FileText size={12} />}
+                  options={cvList.map((item) => {
+                    // Active CV: use activeCV (live cv-store data) so the label reflects
+                    // the globally active CV regardless of which CV is selected for job search
+                    const name = item.id === activeId
+                      ? (activeCV.personal.fullName || activeCV.personal.jobTitle || 'Aktif CV')
+                      : (item.fullName || item.title || item.jobTitle || 'İsimsiz CV')
+                    return { value: item.id, label: `${name}${item.id === activeId ? ' ★' : ''}` }
+                  })}
+                  className="rounded-lg border border-line bg-paper-warm/40 px-2 py-2 pr-7 text-sm"
+                />
                 {activeCV.personal.jobTitle && (
                   <p className="truncate text-xs text-ink/40">{activeCV.personal.jobTitle}</p>
                 )}

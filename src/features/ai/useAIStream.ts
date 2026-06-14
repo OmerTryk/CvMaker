@@ -3,11 +3,16 @@ import { streamAI, type AIError } from '@/lib/ai-client'
 import { useAIStore, PROVIDERS } from '@/store/ai-store'
 import { CV_WRITER_SYSTEM } from '@/lib/prompts'
 
+interface RunOptions {
+  /** Output token budget. Defaults to 700 — raise for longer copy (cover letters). */
+  maxTokens?: number
+}
+
 interface UseAIStreamReturn {
   result: string
   loading: boolean
   error: AIError | null
-  run: (prompt: string) => Promise<void>
+  run: (prompt: string, options?: RunOptions) => Promise<void>
   cancel: () => void
   reset: () => void
 }
@@ -33,7 +38,7 @@ export function useAIStream(): UseAIStreamReturn {
   }, [cancel])
 
   const run = useCallback(
-    async (prompt: string) => {
+    async (prompt: string, options?: RunOptions) => {
       reset()
       setLoading(true)
 
@@ -47,7 +52,7 @@ export function useAIStream(): UseAIStreamReturn {
         model,
         system: CV_WRITER_SYSTEM,
         prompt,
-        maxTokens: 700,
+        maxTokens: options?.maxTokens ?? 700,
         signal: controller.signal,
         onChunk: (chunk) => setResult((prev) => prev + chunk),
         onDone: () => setLoading(false),

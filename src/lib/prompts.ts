@@ -56,6 +56,65 @@ Kurallar:
 }
 
 // ─────────────────────────────────────────────────────────────
+// Cover Letter (Ön Yazı) Generator
+// ─────────────────────────────────────────────────────────────
+
+export type CoverLetterTone = 'formal' | 'balanced' | 'warm'
+
+const TONE_INSTRUCTIONS: Record<CoverLetterTone, string> = {
+  formal:   'Resmî, kurumsal ve mesafeli bir ton kullan.',
+  balanced: 'Profesyonel ama içten, dengeli bir ton kullan.',
+  warm:     'Samimi, enerjik ve motivasyonu hissettiren bir ton kullan.',
+}
+
+export function buildCoverLetterPrompt(
+  cv: CVDocument,
+  opts: { jobDescription: string; company: string; tone: CoverLetterTone },
+): string {
+  const expLines = cv.experience
+    .slice(0, 4)
+    .map((e) => `  - ${e.position} @ ${e.company} (${formatMonthYear(e.startDate)} – ${formatMonthYear(e.endDate)})`)
+    .join('\n')
+
+  const skillNames = cv.skills.slice(0, 10).map((s) => s.name).join(', ')
+
+  const eduLines = cv.education
+    .slice(0, 2)
+    .map((e) => `  - ${e.degree} ${e.field}, ${e.institution}`)
+    .join('\n')
+
+  const jd = opts.jobDescription.trim().slice(0, 3000)
+
+  return `Aşağıdaki aday için, belirtilen iş ilanına yönelik profesyonel bir ön yazı (cover letter) yaz.
+
+ADAY BİLGİLERİ
+Ad: ${cv.personal.fullName || 'Belirtilmemiş'}
+Hedef Pozisyon: ${cv.personal.jobTitle || 'Belirtilmemiş'}
+${cv.summary.content ? `Profil Özeti: ${cv.summary.content}\n` : ''}
+Deneyimler:
+${expLines || '  (belirtilmemiş)'}
+
+Öne Çıkan Yetenekler: ${skillNames || 'belirtilmemiş'}
+
+Eğitim:
+${eduLines || '  (belirtilmemiş)'}
+
+HEDEF ŞİRKET: ${opts.company.trim() || 'Belirtilmemiş'}
+
+İŞ İLANI:
+${jd || '(ilan metni girilmedi — adayın profiline göre genel bir ön yazı yaz)'}
+
+KURALLAR:
+- ${TONE_INSTRUCTIONS[opts.tone]}
+- 3-4 paragraf, toplam 200-320 kelime.
+- Giriş: pozisyona ilgi ve adayın en güçlü 1-2 yönü.
+- Gövde: ilandaki gereksinimlerle adayın deneyim/yeteneklerini SOMUT örneklerle eşleştir. Uydurma başarı veya rakam EKLEME — yalnızca verilen bilgileri kullan.
+- Kapanış: katkı vurgusu ve görüşme talebi.
+- Türkçe yaz. "Sayın İlgili," ile başla, "Saygılarımla," ve aday adıyla bitir.
+- Sadece ön yazı metnini yaz; başlık, açıklama veya madde işareti EKLEME.`
+}
+
+// ─────────────────────────────────────────────────────────────
 // Experience Rewriter
 // ─────────────────────────────────────────────────────────────
 
