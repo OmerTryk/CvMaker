@@ -1,26 +1,11 @@
-import { useEffect, useCallback } from 'react'
 import { HelpCircle } from 'lucide-react'
 import { JobFinderPanel } from '@/features/jobs'
 import { useTour } from '@/features/help/useTour'
 import { TourOverlay } from '@/features/help/TourOverlay'
 import { JOBS_TOUR } from '@/features/help/tourSteps'
 
-const TOUR_KEY = 'ctrlcv_jobs_toured'
-
 export function JobsPage() {
   const tour = useTour(JOBS_TOUR)
-
-  // İlk ziyarette otomatik tur başlat
-  useEffect(() => {
-    if (localStorage.getItem(TOUR_KEY)) return
-    const t = setTimeout(() => tour.start(), 700)
-    return () => clearTimeout(t)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleTourClose = useCallback(() => {
-    localStorage.setItem(TOUR_KEY, '1')
-    tour.stop()
-  }, [tour])
 
   return (
     <div className="w-full px-6 py-8 md:px-10 md:py-10">
@@ -55,7 +40,7 @@ export function JobsPage() {
           isLast={tour.isLast}
           onNext={tour.next}
           onPrev={tour.prev}
-          onClose={handleTourClose}
+          onClose={tour.stop}
         />
       )}
     </div>

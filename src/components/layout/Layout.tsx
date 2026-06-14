@@ -10,10 +10,12 @@ import { useAIStore } from '@/store'
 import { useDarkMode } from '@/hooks/useDarkMode'
 import { useCVListStore } from '@/store/cv-list-store'
 import { useCVStore } from '@/store'
+import { useStorageErrorStore } from '@/utils/storage'
 
 export function Layout() {
   const [helpOpen, setHelpOpen] = useState(false)
   const closeHelp = useCallback(() => setHelpOpen(false), [])
+  const { quotaExceeded, dismiss } = useStorageErrorStore()
   const openAIPanel = useAIStore((s) => s.openPanel)
   const { dark, toggle: toggleDark } = useDarkMode()
 
@@ -42,6 +44,20 @@ export function Layout() {
 
   return (
     <div className="relative flex min-h-screen flex-col">
+      {quotaExceeded && (
+        <div className="sticky top-0 z-[100] flex items-center justify-between gap-4 bg-accent px-5 py-2.5">
+          <p className="font-mono text-[10px] uppercase tracking-widest text-paper">
+            Tarayıcı depolama alanı dolu — son değişiklikler kaydedilemedi. Eski CV'leri silerek yer aç.
+          </p>
+          <button
+            type="button"
+            onClick={dismiss}
+            className="shrink-0 font-mono text-[10px] uppercase tracking-widest text-paper/70 hover:text-paper"
+          >
+            Kapat
+          </button>
+        </div>
+      )}
       <Header
         onHelpOpen={() => setHelpOpen(true)}
         onAIOpen={openAIPanel}

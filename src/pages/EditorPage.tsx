@@ -209,7 +209,7 @@ export function EditorPage() {
           onClick={() => setPdfModalOpen(true)}
           icon={<FileUp size={12} />}
         >
-          PDF'ten içe aktar
+          PDF / Word içe aktar
         </ToolbarButton>
 
         <input

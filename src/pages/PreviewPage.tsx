@@ -12,7 +12,6 @@ import { useTour } from '@/features/help/useTour'
 import { TourOverlay } from '@/features/help/TourOverlay'
 import { PREVIEW_TOUR } from '@/features/help/tourSteps'
 
-const TOUR_KEY = 'ctrlcv_preview_toured'
 
 const GRAD_BOT = 40
 
@@ -65,17 +64,6 @@ export function PreviewPage() {
 
   const tour = useTour(PREVIEW_TOUR)
 
-  // İlk ziyarette otomatik tur başlat
-  useEffect(() => {
-    if (localStorage.getItem(TOUR_KEY)) return
-    const t = setTimeout(() => tour.start(), 700)
-    return () => clearTimeout(t)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleTourClose = useCallback(() => {
-    localStorage.setItem(TOUR_KEY, '1')
-    tour.stop()
-  }, [tour])
 
   return (
     <div className="container-prose py-10 md:py-14">
@@ -292,7 +280,7 @@ export function PreviewPage() {
           isLast={tour.isLast}
           onNext={tour.next}
           onPrev={tour.prev}
-          onClose={handleTourClose}
+          onClose={tour.stop}
         />
       )}
     </div>

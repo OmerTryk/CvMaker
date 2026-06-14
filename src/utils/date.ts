@@ -101,8 +101,8 @@ export function parseToMonthDate(value: string | null | undefined): string | nul
   // "present / devam / halen / şu an" → ongoing
   if (/present|current|devam|halen|günümüz|şu an|bugün/i.test(v)) return null
 
-  // Already YYYY-MM
-  if (/^\d{4}-\d{2}$/.test(v)) return v
+  // Already YYYY-MM — validate month range (01-12)
+  if (/^\d{4}-(0[1-9]|1[0-2])$/.test(v)) return v
 
   // YYYY-MM-DD → drop the day
   const full = /^(\d{4})-(\d{2})-\d{2}$/.exec(v)

@@ -12,7 +12,7 @@ interface ImportPDFModalProps {
 
 export function ImportPDFModal({ onClose, onSuccess }: ImportPDFModalProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const { phase, error, progress, result, importFromPDF, cancel, reset } = useCVImport()
+  const { phase, error, progress, result, importFile, cancel, reset } = useCVImport()
   const loadCV = useCVStore((s) => s.loadCV)
   const currentId = useCVStore((s) => s.cv.id)
   const apiKey = useAIStore((s) => s.apiKey)
@@ -38,12 +38,13 @@ export function ImportPDFModal({ onClose, onSuccess }: ImportPDFModalProps) {
 
   const handleFile = useCallback(
     (file: File) => {
-      if (!file.name.toLowerCase().endsWith('.pdf')) {
+      const name = file.name.toLowerCase()
+      if (!name.endsWith('.pdf') && !name.endsWith('.docx')) {
         return
       }
-      importFromPDF(file)
+      importFile(file)
     },
-    [importFromPDF],
+    [importFile],
   )
 
   const handleDrop = useCallback(
@@ -77,7 +78,7 @@ export function ImportPDFModal({ onClose, onSuccess }: ImportPDFModalProps) {
           <div className="flex items-center gap-2">
             <FileText size={14} className="text-ink/50" />
             <span className="font-mono text-[10px] uppercase tracking-widest text-ink">
-              PDF'ten İçe Aktar
+              PDF / Word İçe Aktar
             </span>
           </div>
           {(phase === 'idle' || phase === 'error' || phase === 'preview') && (
@@ -125,17 +126,17 @@ export function ImportPDFModal({ onClose, onSuccess }: ImportPDFModalProps) {
                 <Upload size={24} className="text-ink/30" />
                 <div className="text-center">
                   <p className="font-mono text-[10px] uppercase tracking-widest text-ink/60">
-                    PDF dosyasını buraya sürükle
+                    PDF veya Word dosyasını buraya sürükle
                   </p>
                   <p className="mt-1 font-mono text-[9px] uppercase tracking-widest text-ink/30">
-                    veya tıkla
+                    veya tıkla · PDF, DOCX
                   </p>
                 </div>
               </div>
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".pdf,application/pdf"
+                accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                 className="hidden"
                 onChange={(e) => {
                   const f = e.target.files?.[0]
@@ -144,7 +145,7 @@ export function ImportPDFModal({ onClose, onSuccess }: ImportPDFModalProps) {
                 }}
               />
               <p className="font-mono text-[9px] uppercase tracking-wider text-ink/30">
-                PDF içeriği seçtiğin AI sağlayıcısına gönderilir.
+                Dosya içeriği seçtiğin AI sağlayıcısına gönderilir.
               </p>
             </div>
           )}
@@ -154,7 +155,7 @@ export function ImportPDFModal({ onClose, onSuccess }: ImportPDFModalProps) {
             <div className="flex flex-col items-center gap-4 py-10">
               <Loader2 size={24} className="animate-spin text-ink/40" />
               <p className="font-mono text-[10px] uppercase tracking-widest text-ink/60">
-                PDF okunuyor...
+                Dosya okunuyor...
               </p>
             </div>
           )}

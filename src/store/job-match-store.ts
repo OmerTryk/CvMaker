@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { safeStorage } from '@/utils/storage'
 import type { JobMatchResult } from '@/lib/job-match'
 
 interface JobMatchStore {
@@ -33,7 +34,7 @@ export const useJobMatchStore = create<JobMatchStore>()(
     }),
     {
       name: 'ctrlcv.jobmatch.v1',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       // Don't persist AI loading state
       partialize: (s) => ({
         jobDescription: s.jobDescription,

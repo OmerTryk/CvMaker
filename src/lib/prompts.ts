@@ -217,7 +217,7 @@ Ham CV metnini yapılandırılmış JSON'a dönüştürürsün.
 SADECE JSON çıktısı üret. Markdown, açıklama veya kod bloğu EKLEME.`
 
 export function buildCVExtractPrompt(rawText: string): string {
-  const text = rawText.slice(0, 8000)
+  const text = rawText.slice(0, 12000)
   return `Aşağıdaki CV metnini ayrıştır. SADECE JSON döndür, başka hiçbir şey yazma.
 
 ${text}

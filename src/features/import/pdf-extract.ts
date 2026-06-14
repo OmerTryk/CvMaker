@@ -20,13 +20,16 @@ export async function extractTextFromPDF(file: File): Promise<string> {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i)
     const textContent = await page.getTextContent()
-    const pageText = textContent.items
-      .map((item) => ('str' in item ? item.str : ''))
-      .join(' ')
-    pages.push(pageText)
+    let pageText = ''
+    for (const item of textContent.items) {
+      if (!('str' in item)) continue
+      pageText += item.str
+      pageText += item.hasEOL ? '\n' : ' '
+    }
+    pages.push(pageText.trim())
   }
 
-  const fullText = pages.join('\n\n').replace(/\s{3,}/g, '  ').trim()
+  const fullText = pages.join('\n\n').replace(/[ \t]{3,}/g, '  ').trim()
 
   if (fullText.length < MIN_TEXT_CHARS) {
     throw new Error(

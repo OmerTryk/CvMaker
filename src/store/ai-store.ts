@@ -13,6 +13,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { safeStorage } from '@/utils/storage'
 
 export type AIProvider = 'gemini'
 
@@ -71,7 +72,7 @@ export const useAIStore = create<AIStore>()(
     }),
     {
       name: 'cvmaker.ai.v4', // v4: Groq kaldırıldı, eski 'groq' store'ları sıfırlanır
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({ apiKey: s.apiKey, provider: s.provider, model: s.model }),
     },
   ),

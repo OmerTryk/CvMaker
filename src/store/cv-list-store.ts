@@ -13,6 +13,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { safeStorage } from '@/utils/storage'
 import type { CVDocument, Template, ColorTheme } from '@/types/cv'
 import { nowISO } from '@/utils/date'
 import { createId } from '@/utils/id'
@@ -209,7 +210,7 @@ export const useCVListStore = create<CVListStore>()(
     }),
     {
       name: 'ctrlcv.cvlist.v1',
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       partialize: (s) => ({
         list: s.list,
         activeId: s.activeId,

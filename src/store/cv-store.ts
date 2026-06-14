@@ -8,6 +8,7 @@
 
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
+import { safeStorage } from '@/utils/storage'
 import {
   CVDocumentSchema,
   type CVDocument,
@@ -464,7 +465,7 @@ export const useCVStore = create<CVStore>()(
     }),
     {
       name: STORAGE_KEY,
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => safeStorage),
       version: 1,
       // Only persist the CV + lastSavedAt, not the action functions
       partialize: (state) => ({

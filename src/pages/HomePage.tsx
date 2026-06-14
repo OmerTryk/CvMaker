@@ -1,11 +1,8 @@
 import { Link } from 'react-router-dom'
-import { useEffect, useCallback } from 'react'
 import { ArrowUpRight, Sparkles, FileText, Layers, HelpCircle } from 'lucide-react'
 import { useTour } from '@/features/help/useTour'
 import { TourOverlay } from '@/features/help/TourOverlay'
 import { HOME_TOUR } from '@/features/help/tourSteps'
-
-const TOUR_KEY = 'ctrlcv_home_toured'
 
 const features = [
   {
@@ -31,18 +28,6 @@ const features = [
 export function HomePage() {
   const tour = useTour(HOME_TOUR)
 
-  // İlk girişte otomatik başlat (animasyonların bitmesi için kısa bekleme)
-  useEffect(() => {
-    if (!localStorage.getItem(TOUR_KEY)) {
-      const t = setTimeout(() => tour.start(), 900)
-      return () => clearTimeout(t)
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleClose = useCallback(() => {
-    localStorage.setItem(TOUR_KEY, '1')
-    tour.stop()
-  }, [tour])
 
   return (
     <div className="relative overflow-hidden">
@@ -162,7 +147,7 @@ export function HomePage() {
           isLast={tour.isLast}
           onNext={tour.next}
           onPrev={tour.prev}
-          onClose={handleClose}
+          onClose={tour.stop}
         />
       )}
     </div>

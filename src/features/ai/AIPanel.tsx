@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { X, Sparkles, FileText, RefreshCw, Lightbulb, ScanSearch, Languages, HelpCircle } from 'lucide-react'
 import { useAIStore } from '@/store'
 import { ApiKeySetup } from './ApiKeySetup'
@@ -60,12 +60,14 @@ const FEATURES: Feature[] = [
   },
 ]
 
-const TOUR_KEY = 'ctrlcv_ai_toured'
-
 export function AIPanel() {
   const { panelOpen, apiKey, closePanel } = useAIStore()
   const [activeFeature, setActiveFeature] = useState<FeatureKey | null>(null)
-  const tour = useTour(AI_TOUR)
+  const tourSteps = useMemo(
+    () => apiKey ? AI_TOUR : AI_TOUR.slice(0, 1),
+    [apiKey],
+  )
+  const tour = useTour(tourSteps)
 
   // Close on Escape
   useEffect(() => {
@@ -82,19 +84,6 @@ export function AIPanel() {
     if (!panelOpen) { setActiveFeature(null); tour.stop() }
   }, [panelOpen, tour.stop])
 
-  // İlk açılışta otomatik tur başlat
-  useEffect(() => {
-    if (!panelOpen) return
-    if (localStorage.getItem(TOUR_KEY)) return
-    const t = setTimeout(() => tour.start(), 600)
-    return () => clearTimeout(t)
-  }, [panelOpen]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Tur kapanınca localStorage'a kaydet
-  const handleTourClose = useCallback(() => {
-    localStorage.setItem(TOUR_KEY, '1')
-    tour.stop()
-  }, [tour])
 
   const active = FEATURES.find((f) => f.key === activeFeature)
 
@@ -232,7 +221,7 @@ export function AIPanel() {
           isLast={tour.isLast}
           onNext={tour.next}
           onPrev={tour.prev}
-          onClose={handleTourClose}
+          onClose={tour.stop}
         />
       )}
     </>
